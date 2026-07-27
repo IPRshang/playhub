@@ -3,12 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PlayHub — 在线小游��中心</title>
-<meta name="description" content="PlayHub 在线小游戏中心 — 塔防战争、贪吃蛇、2048、飞机大战，免费在线玩">
-<meta name="keywords" content="在线小游戏,塔防,贪吃蛇,2048,飞机大战,免费游戏,HTML5游戏">
+<title>PlayHub — 在线小游戏中心</title>
+<meta name="description" content="PlayHub 在线小游戏中心 — 塔防战争、贪吃蛇、2048、飞机大战、铁幕，免费在线玩">
+<meta name="keywords" content="在线小游戏,塔防,贪吃蛇,2048,飞机大战,铁幕,免费游戏,HTML5游戏">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+
+<!-- 粒子背景 -->
+<canvas id="particles"></canvas>
 
 <!-- ==================== 导航栏 ==================== -->
 <header class="navbar">
@@ -33,7 +36,7 @@
 
 <!-- 移动端侧边栏 -->
 <aside class="mobile-sidebar" id="mobileSidebar">
-  <button class="nav-link active">首页</button>
+  <button class="nav-link active">🏠 首页</button>
   <button class="nav-link">🏰 塔防战争</button>
   <button class="nav-link">🐍 贪吃蛇大作战</button>
   <button class="nav-link">🔢 2048</button>
@@ -41,117 +44,106 @@
   <button class="nav-link">🛡️ 铁幕</button>
 </aside>
 
-<!-- ==================== 首页（大厅） ==================== -->
+<!-- ==================== 首页大厅 ==================== -->
 <main id="page-lobby">
 
   <!-- Hero -->
   <header class="hero">
-    <h1>PlayHub 在线小游戏中心</h1>
-    <p class="description">塔防战争 · 贪吃蛇大作战 · 2048 · 飞机大战 · 铁幕战争棋 — 精选 HTML5 小游戏，打开即玩</p>
+    <div class="hero-badge">🎮 HTML5 GAME COLLECTION</div>
+    <h1>打开即玩的<br>精选小游戏</h1>
+    <p class="description">无需下载，无需注册。精选 5 款 HTML5 小游戏，涵盖策略、射击、益智、休闲、棋类，浏览器打开直接玩。</p>
     <button class="action-button">🎮 开始游戏</button>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">5</div><div class="label">精选游戏</div></div>
+      <div class="hero-stat"><div class="num">∞</div><div class="label">无尽乐趣</div></div>
+      <div class="hero-stat"><div class="num">0</div><div class="label">广告 & 付费</div></div>
+    </div>
   </header>
 
-  <!-- 特性 -->
-  <section class="features">
-    <div class="feature">
-      <h2>精选游戏</h2>
-      <p>5 款精心挑选的经典小游戏，涵盖策略、休闲、益智、射击、棋类等多种类型。</p>
-    </div>
-    <div class="feature">
-      <h2>打开即玩</h2>
-      <p>纯 HTML5 前端技术，无需下载安装，无需注册登录，浏览器打开即可畅玩。</p>
-    </div>
-    <div class="feature">
-      <h2>完全免费</h2>
-      <p>所有游戏完全免费开放，无广告、无付费墙、无内购，纯粹的游戏乐趣。</p>
+  <!-- 游戏卡片网格 -->
+  <section class="games-section">
+    <div class="section-title">🎮 游戏列表</div>
+    <div class="games-grid">
+
+      <!-- 塔防战争 -->
+      <div class="game-card" data-game="td">
+        <div class="card-visual card-theme-td"><span class="icon">🏰</span></div>
+        <div class="card-body">
+          <h3>🏰 塔防战争</h3>
+          <p>建造四种防御塔，抵御 15 波敌人的进攻！升级你的防线，保卫领土！</p>
+          <div class="card-tags">
+            <span class="tag hot">策略塔防</span>
+            <span class="tag">4种防御塔</span>
+            <span class="tag">15波</span>
+          </div>
+        </div>
+        <div class="card-play">▶</div>
+      </div>
+
+      <!-- 贪吃蛇 -->
+      <div class="game-card" data-game="snake">
+        <div class="card-visual card-theme-snake"><span class="icon">🐍</span></div>
+        <div class="card-body">
+          <h3>🐍 贪吃蛇大作战</h3>
+          <p>经典贪吃蛇，吃食物变长，速度递增。键盘触屏双支持。</p>
+          <div class="card-tags">
+            <span class="tag">休闲经典</span>
+            <span class="tag">无尽模式</span>
+            <span class="tag">触屏</span>
+          </div>
+        </div>
+        <div class="card-play">▶</div>
+      </div>
+
+      <!-- 2048 -->
+      <div class="game-card" data-game="2048">
+        <div class="card-visual card-theme-2048"><span class="icon">🔢</span></div>
+        <div class="card-body">
+          <h3>🔢 2048</h3>
+          <p>滑动合并相同数字，挑战 2048！流畅动画，自动保存最高分。</p>
+          <div class="card-tags">
+            <span class="tag">益智数字</span>
+            <span class="tag">4×4</span>
+            <span class="tag">触屏</span>
+          </div>
+        </div>
+        <div class="card-play">▶</div>
+      </div>
+
+      <!-- 飞机大战 -->
+      <div class="game-card" data-game="shmup">
+        <div class="card-visual card-theme-shmup"><span class="icon">✈️</span></div>
+        <div class="card-body">
+          <h3>✈️ 飞机大战</h3>
+          <p>雷电风格射击！多种敌机、火力升级、Boss战，震屏特效爽快感十足。</p>
+          <div class="card-tags">
+            <span class="tag hot">射击街机</span>
+            <span class="tag">Boss战</span>
+            <span class="tag">3条命</span>
+          </div>
+        </div>
+        <div class="card-play">▶</div>
+      </div>
+
+      <!-- 铁幕 -->
+      <div class="game-card" data-game="iron-curtain">
+        <div class="card-visual card-theme-iron"><span class="icon">🛡️</span></div>
+        <div class="card-body">
+          <h3>🛡️ 铁幕 · 现代战争棋</h3>
+          <p>现代战争回合制策略棋。8种兵种、兵种克制、远程打击链、将军绝杀！</p>
+          <div class="card-tags">
+            <span class="tag new">策略棋类</span>
+            <span class="tag">8种兵种</span>
+            <span class="tag">9×9</span>
+            <span class="tag ai">双人对弈</span>
+          </div>
+        </div>
+        <div class="card-play">▶</div>
+      </div>
+
     </div>
   </section>
 
-  <!-- 游戏列表 -->
-  <section class="content">
-    <h2>🎮 游戏列表</h2>
-
-    <!-- 塔防战争 -->
-    <h3>🏰 塔防战争</h3>
-    <p>建造四种防御塔，抵御 15 波敌人的进攻！箭塔、炮塔、冰塔、电塔各具特色，升级你的防线，保卫领土！</p>
-    <table>
-      <thead><tr><th>属性</th><th>详情</th></tr></thead>
-      <tbody>
-        <tr><td>类型</td><td>策略塔防</td></tr>
-        <tr><td>防御塔</td><td>4 种（箭塔 / 炮塔 / 冰塔 / 电塔）</td></tr>
-        <tr><td>波次</td><td>15 波递增难度</td></tr>
-        <tr><td>特色</td><td>塔升级系统 · 出售回收 · 速度调节 · 键盘快捷键</td></tr>
-      </tbody>
-    </table>
-    <button class="btn-enter" data-game="td">进入游戏 →</button>
-
-    <hr>
-
-    <!-- 贪吃蛇 -->
-    <h3>🐍 贪吃蛇大作战</h3>
-    <p>经典贪吃蛇玩法，吃食物变长，速度逐步递增，挑战最高分！支持键盘（WASD / 方向键）和触屏滑动操作。</p>
-    <table>
-      <thead><tr><th>属性</th><th>详情</th></tr></thead>
-      <tbody>
-        <tr><td>类型</td><td>休闲经典</td></tr>
-        <tr><td>模式</td><td>无尽模式</td></tr>
-        <tr><td>操作</td><td>键盘 / 触屏</td></tr>
-        <tr><td>特色</td><td>速度递增 · 粒子特效 · 最高分记录</td></tr>
-      </tbody>
-    </table>
-    <button class="btn-enter" data-game="snake">进入游戏 →</button>
-
-    <hr>
-
-    <!-- 2048 -->
-    <h3>🔢 2048</h3>
-    <p>滑动合并相同数字，挑战 2048！精美的动画过渡效果，支持键盘方向键和触屏滑动，自动保存最高分。</p>
-    <table>
-      <thead><tr><th>属性</th><th>详情</th></tr></thead>
-      <tbody>
-        <tr><td>类型</td><td>益智数字</td></tr>
-        <tr><td>棋盘</td><td>4 × 4</td></tr>
-        <tr><td>操作</td><td>键盘 / 触屏</td></tr>
-        <tr><td>特色</td><td>流畅动画 · 合并特效 · 最高分持久化</td></tr>
-      </tbody>
-    </table>
-    <button class="btn-enter" data-game="2048">进入游戏 →</button>
-
-    <hr>
-
-    <!-- 飞机大战 -->
-    <h3>✈️ 飞机大战</h3>
-    <p>雷电风格飞行射击游戏！多种敌机类型、火力升级系统、Boss 战，鼠标/触屏控制战机自动射击。</p>
-    <table>
-      <thead><tr><th>属性</th><th>详情</th></tr></thead>
-      <tbody>
-        <tr><td>类型</td><td>射击街机</td></tr>
-        <tr><td>敌机类型</td><td>4 种（小型 / 中型 / 快速 / Boss）</td></tr>
-        <tr><td>道具</td><td>火力升级 / 回血</td></tr>
-        <tr><td>特色</td><td>Boss 战 · 3 级火力 · 震屏特效 · 3 条命</td></tr>
-      </tbody>
-    </table>
-    <button class="btn-enter" data-game="shmup">进入游戏 →</button>
-
-    <hr>
-
-    <!-- 铁幕 -->
-    <h3>🛡️ 铁幕 · 现代战争棋</h3>
-    <p>基于现代战争的双人回合制策略棋。坦克、直升机、火炮、防空导弹、步兵… 在 9×9 棋盘上展开信息战与体系对抗，保留象棋的策略深度，融入现代战争元素。</p>
-    <table>
-      <thead><tr><th>属性</th><th>详情</th></tr></thead>
-      <tbody>
-        <tr><td>类型</td><td>策略棋类</td></tr>
-        <tr><td>兵种</td><td>8 种（坦克 / 直升机 / 火炮 / 防空 / 近卫 / 步兵 / 侦察 / 指挥）</td></tr>
-        <tr><td>棋盘</td><td>9 × 9</td></tr>
-        <tr><td>特色</td><td>兵种克制 · 远程打击链 · 通信节点 · 将军绝杀 · 悔棋</td></tr>
-      </tbody>
-    </table>
-    <button class="btn-enter" data-game="iron-curtain">进入游戏 →</button>
-
-  </section>
-
-  <!-- Footer -->
   <footer class="footer">
     Copyright © 2025 PlayHub · 纯前端 · 无广告 · 永久免费
   </footer>
@@ -219,5 +211,50 @@
 </div>
 
 <script src="js/main.js"></script>
+<script>
+// 粒子背景动画
+(function(){
+  var c=document.getElementById('particles'),ctx=c.getContext('2d');
+  var w,h,particles=[];
+  function resize(){w=c.width=window.innerWidth;h=c.height=window.innerHeight;}
+  resize();window.addEventListener('resize',resize);
+  for(var i=0;i<80;i++){
+    particles.push({
+      x:Math.random()*w,y:Math.random()*h,
+      vx:(Math.random()-0.5)*0.4,vy:(Math.random()-0.5)*0.4,
+      r:Math.random()*2+0.5,o:Math.random()*0.5+0.2
+    });
+  }
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    for(var i=0;i<particles.length;i++){
+      var p=particles[i];
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0)p.x=w;if(p.x>w)p.x=0;if(p.y<0)p.y=h;if(p.y>h)p.y=0;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,255,255,'+p.o+')';ctx.fill();
+      // 连线
+      for(var j=i+1;j<particles.length;j++){
+        var q=particles[j],dx=p.x-q.x,dy=p.y-q.y,dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<120){
+          ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);
+          ctx.strokeStyle='rgba(255,255,255,'+(0.06*(1-dist/120))+')';
+          ctx.lineWidth=0.5;ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// 游戏卡片点击事件
+document.querySelectorAll('.game-card').forEach(function(card){
+  card.addEventListener('click',function(){
+    var game=this.getAttribute('data-game');
+    if(game&&window.PlayHub)window.PlayHub.openGame(game);
+  });
+});
+</script>
 </body>
 </html>

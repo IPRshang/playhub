@@ -1,381 +1,277 @@
 /* ==========================================
-   PlayHub — 主样式表
-   参考 VuePress 设计风格
+   PlayHub — 游戏厅风格样式表
    ========================================== */
 
 :root {
-  --c-text: #2c3e50;
-  --c-text-light: #4e6e8e;
-  --c-text-lighter: #6a8bad;
-  --c-accent: #3eaf7c;
-  --c-accent-hover: #4abf8a;
-  --c-accent-dark: #389d70;
-  --c-bg: #ffffff;
-  --c-bg-alt: #f6f8fa;
-  --c-border: #eaecef;
-  --c-border-dark: #dfe2e5;
-  --navbar-height: 3.6rem;
-  --content-width: 740px;
-  --home-width: 960px;
+  --bg: #0a0a14;
+  --bg-card: #141428;
+  --bg-card-hover: #1a1a38;
+  --text: #e8e8f0;
+  --text-dim: #8888aa;
+  --accent: #ff5e7a;
+  --accent2: #7b5eff;
+  --accent3: #00d4aa;
+  --gold: #ffb830;
+  --blue: #4dc9f6;
+  --red: #ff3860;
+  --border: rgba(255,255,255,0.06);
+  --navbar-height: 56px;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+* { margin:0; padding:0; box-sizing:border-box; }
 
-html {
-  scroll-behavior: smooth;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+html { scroll-behavior:smooth; -webkit-font-smoothing:antialiased; }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-    Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue",
-    "PingFang SC", "Microsoft YaHei", sans-serif;
-  font-size: 16px;
-  color: var(--c-text);
-  background: var(--c-bg);
-  line-height: 1.7;
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
+  font-size: 16px; color: var(--text); background: var(--bg);
+  line-height: 1.6; overflow-x: hidden;
 }
 
-a {
-  color: var(--c-accent);
-  text-decoration: none;
-  transition: color 0.15s ease;
+/* ========== 粒子背景 ========== */
+#particles {
+  position: fixed; top:0; left:0; width:100%; height:100%;
+  pointer-events: none; z-index: 0;
 }
-a:hover { color: var(--c-accent-hover); }
 
 /* ========== 导航栏 ========== */
 .navbar {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  height: var(--navbar-height);
-  background: #fff;
-  border-bottom: 1px solid var(--c-border);
+  position: fixed; top:0; left:0; right:0; height: var(--navbar-height);
+  background: rgba(10,10,20,0.85); backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
   z-index: 100;
-  display: flex;
-  align-items: center;
-  padding: 0.7rem 1.5rem;
-  line-height: 2.2rem;
+  display: flex; align-items: center;
+  padding: 0 24px;
 }
 
 .navbar .site-name {
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: var(--c-text);
-  white-space: nowrap;
-  cursor: pointer;
+  font-size: 1.4rem; font-weight: 800; cursor: pointer;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  background-clip: text;
+  letter-spacing: -0.5px;
 }
 
 .navbar .nav-links {
-  display: flex;
-  align-items: center;
-  margin-left: auto;
-  gap: 1.5rem;
+  display: flex; align-items: center; margin-left: auto; gap: 4px;
 }
 
 .navbar .nav-link {
-  font-size: 0.9rem;
-  color: var(--c-text);
-  padding-bottom: 2px;
-  border-bottom: 2px solid transparent;
-  cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
-  background: none;
-  border-top: none;
-  border-left: none;
-  border-right: none;
-  font-family: inherit;
+  font-size: 0.82rem; color: var(--text-dim);
+  padding: 6px 14px; border-radius: 8px;
+  cursor: pointer; transition: all 0.2s;
+  background: none; border: none; font-family: inherit;
 }
-.navbar .nav-link:hover,
+.navbar .nav-link:hover { color: var(--text); background: rgba(255,255,255,0.06); }
 .navbar .nav-link.active {
-  border-bottom-color: var(--c-accent);
-  color: var(--c-accent);
+  color: #fff; background: rgba(255,94,122,0.15);
 }
 
-/* 汉堡菜单（移动端） */
+/* 汉堡菜单 */
 .sidebar-button {
-  display: none;
-  cursor: pointer;
-  padding: 0.6rem;
-  margin-right: 0.5rem;
-  background: none;
-  border: none;
+  display: none; cursor: pointer; padding: 8px;
+  margin-right: 8px; background: none; border: none; color: var(--text);
 }
 .sidebar-button svg { width: 20px; height: 20px; }
 
-/* 移动端侧边栏遮罩 */
 .sidebar-mask {
-  display: none;
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.3);
+  display: none; position: fixed; top:0; left:0;
+  width:100%; height:100%; background: rgba(0,0,0,0.5);
   z-index: 99;
 }
 .sidebar-mask.show { display: block; }
 
-/* 移动端侧边栏 */
 .mobile-sidebar {
-  position: fixed;
-  top: var(--navbar-height);
-  left: 0; bottom: 0;
-  width: 16.4rem;
-  background: #fff;
-  border-right: 1px solid var(--c-border);
-  z-index: 100;
-  transform: translateX(-100%);
-  transition: transform 0.2s ease;
-  padding: 1.5rem 0;
-  overflow-y: auto;
+  position: fixed; top: var(--navbar-height); left:0; bottom:0;
+  width: 260px; background: #0d0d20; border-right: 1px solid var(--border);
+  z-index: 100; transform: translateX(-100%);
+  transition: transform 0.25s ease; padding: 12px; overflow-y: auto;
 }
 .mobile-sidebar.show { transform: translateX(0); }
 
 .mobile-sidebar .nav-link {
-  display: block;
-  width: 100%;
-  text-align: left;
-  padding: 0.5rem 1.5rem;
-  color: var(--c-text);
-  font-size: 0.95rem;
-  border-left: 0.25rem solid transparent;
-  cursor: pointer;
-  transition: all 0.15s;
-  background: none;
-  border-top: none;
-  border-right: none;
-  border-bottom: none;
-  font-family: inherit;
+  display: block; width: 100%; text-align: left;
+  padding: 10px 14px; border-radius: 8px;
+  color: var(--text-dim); font-size: 0.9rem;
+  cursor: pointer; transition: all 0.15s;
+  background: none; border: none; font-family: inherit;
 }
 .mobile-sidebar .nav-link:hover,
-.mobile-sidebar .nav-link.active {
-  color: var(--c-accent);
-  border-left-color: var(--c-accent);
-}
+.mobile-sidebar .nav-link.active { color: #fff; background: rgba(255,94,122,0.12); }
 
-/* ========== Hero 区域 ========== */
+/* ========== Hero ========== */
 .hero {
-  text-align: center;
-  padding: 5rem 1.5rem 3rem;
+  position: relative; z-index: 1;
+  text-align: center; padding: 100px 24px 60px;
   margin-top: var(--navbar-height);
 }
 
+.hero-badge {
+  display: inline-block; padding: 6px 16px; border-radius: 20px;
+  background: rgba(255,94,122,0.12); color: var(--accent);
+  font-size: 0.8rem; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; margin-bottom: 20px;
+  border: 1px solid rgba(255,94,122,0.2);
+}
+
 .hero h1 {
-  font-size: 3rem;
-  font-weight: 600;
-  color: var(--c-text);
-  margin-bottom: 1rem;
-  background: linear-gradient(135deg, #3eaf7c, #2c3e50);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-size: 3.6rem; font-weight: 900; letter-spacing: -1px;
+  line-height: 1.15; margin-bottom: 16px;
+  background: linear-gradient(135deg, #ff5e7a 0%, #7b5eff 50%, #00d4aa 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
   background-clip: text;
 }
 
 .hero .description {
-  font-size: 1.2rem;
-  color: var(--c-text-lighter);
-  max-width: 35rem;
-  margin: 0 auto 1.5rem;
-  line-height: 1.5;
+  font-size: 1.1rem; color: var(--text-dim); max-width: 500px;
+  margin: 0 auto 28px; line-height: 1.6;
 }
 
 .hero .action-button {
-  display: inline-block;
-  font-size: 1.1rem;
-  color: #fff;
-  background-color: var(--c-accent);
-  padding: 0.8rem 1.6rem;
-  border-radius: 4px;
-  border: none;
-  border-bottom: 1px solid var(--c-accent-dark);
-  cursor: pointer;
-  transition: background-color 0.1s ease;
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 1rem; font-weight: 700; color: #fff;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  padding: 14px 32px; border-radius: 12px; border: none;
+  cursor: pointer; transition: all 0.3s;
+  box-shadow: 0 4px 24px rgba(255,94,122,0.3);
   font-family: inherit;
-  text-decoration: none;
 }
 .hero .action-button:hover {
-  background-color: var(--c-accent-hover);
-  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 32px rgba(255,94,122,0.45);
 }
 
-/* ========== 特性卡片区 ========== */
-.features {
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  max-width: var(--home-width);
-  margin: 0 auto;
-  padding: 2rem 1.5rem;
-  border-top: 1px solid var(--c-border);
-  flex-wrap: wrap;
+.hero-stats {
+  display: flex; justify-content: center; gap: 48px; margin-top: 40px;
+}
+.hero-stat { text-align: center; }
+.hero-stat .num {
+  font-size: 1.8rem; font-weight: 800;
+  background: linear-gradient(135deg, var(--gold), var(--accent));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  background-clip: text;
+}
+.hero-stat .label { font-size: 0.78rem; color: var(--text-dim); margin-top: 2px; }
+
+/* ========== 游戏卡片网格 ========== */
+.games-section {
+  position: relative; z-index: 1;
+  max-width: 1100px; margin: 0 auto; padding: 20px 24px 60px;
+}
+.games-section .section-title {
+  text-align: center; font-size: 1.6rem; font-weight: 800;
+  margin-bottom: 32px; letter-spacing: 1px;
+  background: linear-gradient(135deg, var(--text), var(--text-dim));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  background-clip: text;
 }
 
-.feature {
-  flex: 1 1 30%;
-  min-width: 220px;
-  max-width: 30%;
-  text-align: center;
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 20px;
 }
 
-.feature h2 {
-  font-size: 1.3rem;
-  font-weight: 500;
-  color: #3a5169;
-  margin-bottom: 0.5rem;
+.game-card {
+  background: var(--bg-card);
+  border-radius: 16px; overflow: hidden;
+  cursor: pointer; transition: all 0.3s ease;
+  border: 1px solid var(--border);
+  position: relative;
+}
+.game-card:hover {
+  transform: translateY(-4px);
+  background: var(--bg-card-hover);
+  border-color: rgba(255,255,255,0.12);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
 }
 
-.feature p {
-  color: var(--c-text-light);
-  font-size: 0.95rem;
-  line-height: 1.6;
+.card-visual {
+  height: 160px; display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
 }
+.card-visual .icon { font-size: 5rem; position: relative; z-index: 1; transition: transform 0.3s; }
+.game-card:hover .card-visual .icon { transform: scale(1.1); }
 
-/* ========== 内容区 ========== */
-.content {
-  max-width: var(--content-width);
-  margin: 0 auto;
-  padding: 2rem 2.5rem;
-}
+/* 每个游戏的视觉主题色 */
+.card-theme-td     { background: linear-gradient(135deg, #1a3a1a, #0f2f1a); }
+.card-theme-snake  { background: linear-gradient(135deg, #1a2a1a, #0f2f0f); }
+.card-theme-2048   { background: linear-gradient(135deg, #2a1a3a, #1a0f2a); }
+.card-theme-shmup  { background: linear-gradient(135deg, #1a1a3a, #0f0f2f); }
+.card-theme-iron   { background: linear-gradient(135deg, #1a2a3a, #1a1a2f); }
 
-.content h2 {
-  font-size: 1.65rem;
-  font-weight: 600;
-  padding-bottom: 0.3rem;
-  border-bottom: 1px solid var(--c-border);
-  margin: 2rem 0 1rem;
+.card-body { padding: 18px 20px; }
+.card-body h3 {
+  font-size: 1.05rem; font-weight: 700; margin-bottom: 6px;
+  display: flex; align-items: center; gap: 8px;
 }
+.card-body p {
+  color: var(--text-dim); font-size: 0.82rem; line-height: 1.5;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.card-tags {
+  display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap;
+}
+.tag {
+  font-size: 0.68rem; padding: 3px 10px; border-radius: 20px;
+  background: rgba(255,255,255,0.05); color: var(--text-dim);
+  letter-spacing: 0.5px; font-weight: 500;
+}
+.tag.hot { background: rgba(255,94,122,0.15); color: var(--accent); }
+.tag.new { background: rgba(123,94,255,0.15); color: var(--accent2); }
+.tag.ai  { background: rgba(0,212,170,0.12); color: var(--accent3); }
 
-.content h3 {
-  font-size: 1.35rem;
-  font-weight: 600;
-  margin: 1.5rem 0 0.5rem;
+.card-play {
+  position: absolute; bottom: 14px; right: 14px;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; opacity: 0; transform: translateX(8px);
+  transition: all 0.3s; box-shadow: 0 4px 16px rgba(255,94,122,0.4);
 }
-
-.content p {
-  margin-bottom: 0.8rem;
-  color: var(--c-text-light);
-}
-
-.content hr {
-  border: none;
-  border-top: 1px solid var(--c-border);
-  margin: 1.5rem 0;
-}
-
-/* 表格 */
-.content table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 1rem 0;
-  font-size: 0.95rem;
-}
-
-.content thead th {
-  background: var(--c-bg-alt);
-  font-weight: 600;
-}
-
-.content th,
-.content td {
-  border: 1px solid var(--c-border-dark);
-  padding: 0.6em 1em;
-  text-align: left;
-}
-
-.content tbody tr:nth-child(even) {
-  background: var(--c-bg-alt);
-}
-
-/* 进入游戏按钮 */
-.btn-enter {
-  display: inline-block;
-  margin-top: 0.5rem;
-  padding: 0.5rem 1.2rem;
-  background: var(--c-accent);
-  color: #fff !important;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.15s;
-  border: none;
-  font-family: inherit;
-}
-.btn-enter:hover {
-  background: var(--c-accent-hover);
-}
+.game-card:hover .card-play { opacity: 1; transform: translateX(0); }
 
 /* ========== 游戏页面 ========== */
 .game-page {
-  display: none;
-  margin-top: var(--navbar-height);
+  display: none; margin-top: var(--navbar-height);
   min-height: calc(100vh - var(--navbar-height));
+  position: relative; z-index: 1;
 }
 .game-page.active { display: block; }
 
 .game-page-header {
-  max-width: var(--home-width);
-  margin: 0 auto;
-  padding: 1.5rem 2rem 0;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+  max-width: 1100px; margin: 0 auto;
+  padding: 16px 24px 0;
+  display: flex; align-items: center; gap: 12px;
 }
-
 .game-page-header .back-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  color: var(--c-text-light);
-  font-size: 0.9rem;
-  cursor: pointer;
-  padding: 0.3rem 0.6rem;
-  border-radius: 4px;
-  transition: all 0.15s;
-  background: none;
-  border: none;
-  font-family: inherit;
+  display: inline-flex; align-items: center; gap: 4px;
+  color: var(--text-dim); font-size: 0.85rem; cursor: pointer;
+  padding: 6px 12px; border-radius: 8px;
+  transition: all 0.15s; background: rgba(255,255,255,0.04);
+  border: none; font-family: inherit;
 }
-.game-page-header .back-btn:hover {
-  color: var(--c-accent);
-  background: var(--c-bg-alt);
-}
-
-.game-page-header h2 {
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: var(--c-text);
-}
-
-.game-page-body {
-  display: flex;
-  justify-content: center;
-  padding: 1rem;
-}
+.game-page-header .back-btn:hover { color: #fff; background: rgba(255,255,255,0.08); }
+.game-page-header h2 { font-size: 1.2rem; font-weight: 700; color: var(--text); }
 
 .game-full {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: calc(100vh - var(--navbar-height) - 60px);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: calc(100vh - var(--navbar-height) - 56px);
+  padding: 8px;
 }
-
-/* 游戏 iframe 容器 */
 .game-frame {
-  border: 1px solid var(--c-border);
-  border-radius: 4px;
-  background: #000;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  border: 1px solid var(--border); border-radius: 8px;
+  background: #000; box-shadow: 0 4px 24px rgba(0,0,0,0.4);
 }
 
 /* ========== Footer ========== */
 .footer {
-  text-align: center;
-  padding: 2.5rem;
-  border-top: 1px solid var(--c-border);
-  color: var(--c-text-light);
-  font-size: 0.85rem;
-  margin-top: 2rem;
+  position: relative; z-index: 1;
+  text-align: center; padding: 32px;
+  border-top: 1px solid var(--border);
+  color: var(--text-dim); font-size: 0.8rem;
 }
 
 /* ========== 响应式 ========== */
@@ -383,16 +279,13 @@ a:hover { color: var(--c-accent-hover); }
   .navbar .nav-links { display: none; }
   .sidebar-button { display: block; }
 
-  .hero { padding: 3rem 1rem 2rem; }
-  .hero h1 { font-size: 2rem; }
-  .hero .description { font-size: 1rem; }
+  .hero { padding: 80px 16px 40px; }
+  .hero h1 { font-size: 2.2rem; }
+  .hero .description { font-size: 0.95rem; }
+  .hero-stats { gap: 32px; }
 
-  .features { flex-direction: column; align-items: center; }
-  .feature { max-width: 100%; flex: 1 1 100%; }
+  .games-grid { grid-template-columns: 1fr; padding: 0 8px; }
+  .games-section { padding: 20px 8px 40px; }
 
-  .content { padding: 1.5rem 1.5rem; }
-
-  .game-page-header { padding: 1rem 1rem 0; }
-  .game-page-body { padding: 0.5rem; }
-  .game-frame { width: 100% !important; height: auto !important; }
+  .game-frame { width: 100% !important; height: auto !important; min-height: 400px; }
 }
