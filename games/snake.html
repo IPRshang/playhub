@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🐍 贪吃蛇大作战</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#1a1a2e;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;user-select:none;gap:10px;padding:10px}
+.game-wrapper{display:flex;gap:16px;align-items:flex-start}
+canvas{border:2px solid #333;border-radius:8px;background:#111827;box-shadow:0 0 40px rgba(0,0,0,0.5)}
+.panel{background:#16213e;border:2px solid #0f3460;border-radius:8px;padding:16px;color:#eee;width:170px;box-shadow:0 0 20px rgba(0,0,0,0.3)}
+.panel h2{font-size:16px;color:#4ecdc4;text-align:center;margin-bottom:12px;border-bottom:1px solid #333;padding-bottom:8px}
+.sr{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #222;font-size:13px}
+.sl{color:#aaa}.sv{font-weight:bold}.sv.score{color:#f39c12}.sv.best{color:#e94560}
+.btn{display:block;width:100%;padding:10px;margin-top:10px;border:none;border-radius:6px;font-size:13px;font-weight:bold;cursor:pointer;font-family:inherit;transition:all 0.2s}
+.btn-r{background:#e94560;color:white}.btn-r:hover{background:#c0392b}
+.hint{font-size:11px;color:#555;text-align:center;margin-top:8px}
+.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:flex;justify-content:center;align-items:center;z-index:200;display:none}
+.overlay.show{display:flex}
+.obox{background:#16213e;border:2px solid #e94560;border-radius:16px;padding:32px;text-align:center;color:white}
+.obox h1{font-size:28px;color:#e94560;margin-bottom:12px}
+.obox p{font-size:16px;margin-bottom:20px;color:#ccc}
+@media(max-width:600px){.game-wrapper{flex-direction:column;align-items:center}.panel{width:100%;max-width:360px}canvas{width:100%;height:auto}}
+</style>
+</head>
+<body>
+<div class="game-wrapper">
+<canvas id="c" width="400" height="400"></canvas>
+<div class="panel"><h2>🐍 贪吃蛇</h2>
+<div class="sr"><span class="sl">🏆 分数</span><span class="sv score" id="score">0</span></div>
+<div class="sr"><span class="sl">👑 最高分</span><span class="sv best" id="best">0</span></div>
+<div class="sr"><span class="sl">📏 长度</span><span class="sv" id="len">3</span></div>
+<button class="btn btn-r" onclick="restart()">🔄 重新开始</button>
+<div class="hint">方向键 / WASD 控制</div></div></div>
+<div class="overlay" id="ov"><div class="obox"><h1>💀 游戏结束</h1><p>得分: <b id="fs">0</b></p><button class="btn btn-r" onclick="restart()">🔄 再来一局</button></div></div>
+<script>
+const c=document.getElementById('c'),x=c.getContext('2d'),G=20,C=c.width/G,R=c.height/G;
+let sn,fd,dir,nd,sc=0,bs=0,gov=!1,lid,pt=[],sp=120;
+bs=localStorage.getItem('snakeBest')||0;document.getElementById('best').textContent=bs;
+function init(){sn=[{x:Math.floor(C/2),y:Math.floor(R/2)},{x:Math.floor(C/2)-1,y:Math.floor(R/2)},{x:Math.floor(C/2)-2,y:Math.floor(R/2)}];dir={x:1,y:0};nd={x:1,y:0};sc=0;gov=!1;pt=[];sp=120;document.getElementById('ov').classList.remove('show');placeFd();upUI()}
+function placeFd(){do{fd={x:Math.floor(Math.random()*C),y:Math.floor(Math.random()*R)}}while(sn.some(s=>s.x===fd.x&&s.y===fd.y))}
+function restart(){if(lid)clearInterval(lid);init();lid=setInterval(up,sp)}
+function up(){if(gov)return;dir={...nd};let h={x:sn[0].x+dir.x,y:sn[0].y+dir.y};if(h.x<0||h.x>=C||h.y<0||h.y>=R||sn.some(s=>s.x===h.x&&s.y===h.y)){end();return}sn.unshift(h);if(h.x===fd.x&&h.y===fd.y){sc+=10;placeFd();for(let i=0;i<8;i++)pt.push({x:fd.x*G+G/2,y:fd.y*G+G/2,vx:(Math.random()-0.5)*4,vy:(Math.random()-0.5)*4,life:15,cl:'#f39c12'});if(sp>60&&sc%50===0){sp-=5;clearInterval(lid);lid=setInterval(up,sp)}}else{sn.pop()}upUI()}
+function end(){gov=!0;if(sc>bs){bs=sc;localStorage.setItem('snakeBest',bs)}document.getElementById('fs').textContent=sc;document.getElementById('ov').classList.add('show');upUI()}
+function upUI(){document.getElementById('score').textContent=sc;document.getElementById('best').textContent=bs;document.getElementById('len').textContent=sn.length}
+function draw(){x.clearRect(0,0,c.width,c.height);x.strokeStyle='rgba(255,255,255,0.03)';x.lineWidth=0.5;for(let i=0;i<=c.width;i+=G){x.beginPath();x.moveTo(i,0);x.lineTo(i,c.height);x.stroke()}for(let i=0;i<=c.height;i+=G){x.beginPath();x.moveTo(0,i);x.lineTo(c.width,i);x.stroke()}let pu=1+Math.sin(Date.now()/200)*0.2;x.fillStyle='#e94560';x.shadowColor='#e94560';x.shadowBlur=10;x.beginPath();x.arc(fd.x*G+G/2,fd.y*G+G/2,G/2*pu,0,Math.PI*2);x.fill();x.shadowBlur=0;sn.forEach((s,i)=>{let t=i/sn.length;x.fillStyle=`rgb(${Math.floor(39+t*20)},${Math.floor(174+t*30)},${Math.floor(96-t*50)})`;let p=i===0?1:2;x.fillRect(s.x*G+p,s.y*G+p,G-p*2,G-p*2);if(i===0){x.fillStyle='white';let ex=s.x*G+G/2+dir.x*4,ey=s.y*G+G/2+dir.y*4;x.beginPath();x.arc(ex-2,ey-2,2.5,0,Math.PI*2);x.fill();x.beginPath();x.arc(ex+2,ey+2,2.5,0,Math.PI*2);x.fill();x.fillStyle='#111';x.beginPath();x.arc(ex-2,ey-2,1.2,0,Math.PI*2);x.fill();x.beginPath();x.arc(ex+2,ey+2,1.2,0,Math.PI*2);x.fill()}});for(let p of pt){p.x+=p.vx;p.y+=p.vy;p.life--;let a=p.life/15;x.fillStyle=`rgba(243,156,18,${a})`;x.beginPath();x.arc(p.x,p.y,2,0,Math.PI*2);x.fill()}pt=pt.filter(p=>p.life>0);requestAnimationFrame(draw)}
+document.addEventListener('keydown',e=>{if(gov)return;switch(e.key){case'ArrowUp':case'w':case'W':if(dir.y===0)nd={x:0,y:-1};break;case'ArrowDown':case's':case'S':if(dir.y===0)nd={x:0,y:1};break;case'ArrowLeft':case'a':case'A':if(dir.x===0)nd={x:-1,y:0};break;case'ArrowRight':case'd':case'D':if(dir.x===0)nd={x:1,y:0};break}});
+let tsx,tsy;c.addEventListener('touchstart',e=>{tsx=e.touches[0].clientX;tsy=e.touches[0].clientY});c.addEventListener('touchend',e=>{if(!tsx)return;let dx=e.changedTouches[0].clientX-tsx,dy=e.changedTouches[0].clientY-tsy;if(Math.abs(dx)>Math.abs(dy)){if(dx>20&&dir.x===0)nd={x:1,y:0};else if(dx<-20&&dir.x===0)nd={x:-1,y:0}}else{if(dy>20&&dir.y===0)nd={x:0,y:1};else if(dy<-20&&dir.y===0)nd={x:0,y:-1}}tsx=null});
+init();lid=setInterval(up,sp);draw();
+</script>
+</body>
+</html>

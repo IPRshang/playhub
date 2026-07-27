@@ -1,0 +1,398 @@
+/* ==========================================
+   PlayHub — 主样式表
+   参考 VuePress 设计风格
+   ========================================== */
+
+:root {
+  --c-text: #2c3e50;
+  --c-text-light: #4e6e8e;
+  --c-text-lighter: #6a8bad;
+  --c-accent: #3eaf7c;
+  --c-accent-hover: #4abf8a;
+  --c-accent-dark: #389d70;
+  --c-bg: #ffffff;
+  --c-bg-alt: #f6f8fa;
+  --c-border: #eaecef;
+  --c-border-dark: #dfe2e5;
+  --navbar-height: 3.6rem;
+  --content-width: 740px;
+  --home-width: 960px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue",
+    "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 16px;
+  color: var(--c-text);
+  background: var(--c-bg);
+  line-height: 1.7;
+}
+
+a {
+  color: var(--c-accent);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+a:hover { color: var(--c-accent-hover); }
+
+/* ========== 导航栏 ========== */
+.navbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--navbar-height);
+  background: #fff;
+  border-bottom: 1px solid var(--c-border);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  padding: 0.7rem 1.5rem;
+  line-height: 2.2rem;
+}
+
+.navbar .site-name {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--c-text);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.navbar .nav-links {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+  gap: 1.5rem;
+}
+
+.navbar .nav-link {
+  font-size: 0.9rem;
+  color: var(--c-text);
+  padding-bottom: 2px;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  font-family: inherit;
+}
+.navbar .nav-link:hover,
+.navbar .nav-link.active {
+  border-bottom-color: var(--c-accent);
+  color: var(--c-accent);
+}
+
+/* 汉堡菜单（移动端） */
+.sidebar-button {
+  display: none;
+  cursor: pointer;
+  padding: 0.6rem;
+  margin-right: 0.5rem;
+  background: none;
+  border: none;
+}
+.sidebar-button svg { width: 20px; height: 20px; }
+
+/* 移动端侧边栏遮罩 */
+.sidebar-mask {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.3);
+  z-index: 99;
+}
+.sidebar-mask.show { display: block; }
+
+/* 移动端侧边栏 */
+.mobile-sidebar {
+  position: fixed;
+  top: var(--navbar-height);
+  left: 0; bottom: 0;
+  width: 16.4rem;
+  background: #fff;
+  border-right: 1px solid var(--c-border);
+  z-index: 100;
+  transform: translateX(-100%);
+  transition: transform 0.2s ease;
+  padding: 1.5rem 0;
+  overflow-y: auto;
+}
+.mobile-sidebar.show { transform: translateX(0); }
+
+.mobile-sidebar .nav-link {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 1.5rem;
+  color: var(--c-text);
+  font-size: 0.95rem;
+  border-left: 0.25rem solid transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: none;
+  border-top: none;
+  border-right: none;
+  border-bottom: none;
+  font-family: inherit;
+}
+.mobile-sidebar .nav-link:hover,
+.mobile-sidebar .nav-link.active {
+  color: var(--c-accent);
+  border-left-color: var(--c-accent);
+}
+
+/* ========== Hero 区域 ========== */
+.hero {
+  text-align: center;
+  padding: 5rem 1.5rem 3rem;
+  margin-top: var(--navbar-height);
+}
+
+.hero h1 {
+  font-size: 3rem;
+  font-weight: 600;
+  color: var(--c-text);
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #3eaf7c, #2c3e50);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero .description {
+  font-size: 1.2rem;
+  color: var(--c-text-lighter);
+  max-width: 35rem;
+  margin: 0 auto 1.5rem;
+  line-height: 1.5;
+}
+
+.hero .action-button {
+  display: inline-block;
+  font-size: 1.1rem;
+  color: #fff;
+  background-color: var(--c-accent);
+  padding: 0.8rem 1.6rem;
+  border-radius: 4px;
+  border: none;
+  border-bottom: 1px solid var(--c-accent-dark);
+  cursor: pointer;
+  transition: background-color 0.1s ease;
+  font-family: inherit;
+  text-decoration: none;
+}
+.hero .action-button:hover {
+  background-color: var(--c-accent-hover);
+  color: #fff;
+}
+
+/* ========== 特性卡片区 ========== */
+.features {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  max-width: var(--home-width);
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  border-top: 1px solid var(--c-border);
+  flex-wrap: wrap;
+}
+
+.feature {
+  flex: 1 1 30%;
+  min-width: 220px;
+  max-width: 30%;
+  text-align: center;
+}
+
+.feature h2 {
+  font-size: 1.3rem;
+  font-weight: 500;
+  color: #3a5169;
+  margin-bottom: 0.5rem;
+}
+
+.feature p {
+  color: var(--c-text-light);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* ========== 内容区 ========== */
+.content {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 2rem 2.5rem;
+}
+
+.content h2 {
+  font-size: 1.65rem;
+  font-weight: 600;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid var(--c-border);
+  margin: 2rem 0 1rem;
+}
+
+.content h3 {
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.5rem;
+}
+
+.content p {
+  margin-bottom: 0.8rem;
+  color: var(--c-text-light);
+}
+
+.content hr {
+  border: none;
+  border-top: 1px solid var(--c-border);
+  margin: 1.5rem 0;
+}
+
+/* 表格 */
+.content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.95rem;
+}
+
+.content thead th {
+  background: var(--c-bg-alt);
+  font-weight: 600;
+}
+
+.content th,
+.content td {
+  border: 1px solid var(--c-border-dark);
+  padding: 0.6em 1em;
+  text-align: left;
+}
+
+.content tbody tr:nth-child(even) {
+  background: var(--c-bg-alt);
+}
+
+/* 进入游戏按钮 */
+.btn-enter {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.5rem 1.2rem;
+  background: var(--c-accent);
+  color: #fff !important;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s;
+  border: none;
+  font-family: inherit;
+}
+.btn-enter:hover {
+  background: var(--c-accent-hover);
+}
+
+/* ========== 游戏页面 ========== */
+.game-page {
+  display: none;
+  margin-top: var(--navbar-height);
+  min-height: calc(100vh - var(--navbar-height));
+}
+.game-page.active { display: block; }
+
+.game-page-header {
+  max-width: var(--home-width);
+  margin: 0 auto;
+  padding: 1.5rem 2rem 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.game-page-header .back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--c-text-light);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  transition: all 0.15s;
+  background: none;
+  border: none;
+  font-family: inherit;
+}
+.game-page-header .back-btn:hover {
+  color: var(--c-accent);
+  background: var(--c-bg-alt);
+}
+
+.game-page-header h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--c-text);
+}
+
+.game-page-body {
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.game-full {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - var(--navbar-height) - 60px);
+}
+
+/* 游戏 iframe 容器 */
+.game-frame {
+  border: 1px solid var(--c-border);
+  border-radius: 4px;
+  background: #000;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+/* ========== Footer ========== */
+.footer {
+  text-align: center;
+  padding: 2.5rem;
+  border-top: 1px solid var(--c-border);
+  color: var(--c-text-light);
+  font-size: 0.85rem;
+  margin-top: 2rem;
+}
+
+/* ========== 响应式 ========== */
+@media (max-width: 719px) {
+  .navbar .nav-links { display: none; }
+  .sidebar-button { display: block; }
+
+  .hero { padding: 3rem 1rem 2rem; }
+  .hero h1 { font-size: 2rem; }
+  .hero .description { font-size: 1rem; }
+
+  .features { flex-direction: column; align-items: center; }
+  .feature { max-width: 100%; flex: 1 1 100%; }
+
+  .content { padding: 1.5rem 1.5rem; }
+
+  .game-page-header { padding: 1rem 1rem 0; }
+  .game-page-body { padding: 0.5rem; }
+  .game-frame { width: 100% !important; height: auto !important; }
+}

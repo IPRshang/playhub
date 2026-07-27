@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PlayHub — 在线小游��中心</title>
+<meta name="description" content="PlayHub 在线小游戏中心 — 塔防战争、贪吃蛇、2048、飞机大战，免费在线玩">
+<meta name="keywords" content="在线小游戏,塔防,贪吃蛇,2048,飞机大战,免费游戏,HTML5游戏">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ==================== 导航栏 ==================== -->
+<header class="navbar">
+  <button class="sidebar-button" id="sidebarBtn" aria-label="菜单">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+      <path fill="currentColor" d="M436 124H12c-6.6 0-12-5.4-12-12V80c0-6.6 5.4-12 12-12h424c6.6 0 12 5.4 12 12v32c0 6.6-5.4 12-12 12zm0 160H12c-6.6 0-12-5.4-12-12v-32c0-6.6 5.4-12 12-12h424c6.6 0 12 5.4 12 12v32c0 6.6-5.4 12-12 12zm0 160H12c-6.6 0-12-5.4-12-12v-32c0-6.6 5.4-12 12-12h424c6.6 0 12 5.4 12 12v32c0 6.6-5.4 12-12 12z"/>
+    </svg>
+  </button>
+  <span class="site-name">PlayHub</span>
+  <nav class="nav-links">
+    <button class="nav-link active">首页</button>
+    <button class="nav-link">塔防战争</button>
+    <button class="nav-link">贪吃蛇</button>
+    <button class="nav-link">2048</button>
+    <button class="nav-link">飞机大战</button>
+  </nav>
+</header>
+
+<!-- 侧边栏遮罩 -->
+<div class="sidebar-mask" id="sidebarMask"></div>
+
+<!-- 移动端侧边栏 -->
+<aside class="mobile-sidebar" id="mobileSidebar">
+  <button class="nav-link active">首页</button>
+  <button class="nav-link">🏰 塔防战争</button>
+  <button class="nav-link">🐍 贪吃蛇大作战</button>
+  <button class="nav-link">🔢 2048</button>
+  <button class="nav-link">✈️ 飞机大战</button>
+</aside>
+
+<!-- ==================== 首页（大厅） ==================== -->
+<main id="page-lobby">
+
+  <!-- Hero -->
+  <header class="hero">
+    <h1>PlayHub 在线小游戏中心</h1>
+    <p class="description">塔防战争 · 贪吃蛇大作战 · 2048 · 飞机大战 — 精选 HTML5 小游戏，打开即玩</p>
+    <button class="action-button">🎮 开始游戏</button>
+  </header>
+
+  <!-- 特性 -->
+  <section class="features">
+    <div class="feature">
+      <h2>精选游戏</h2>
+      <p>4 款精心挑选的经典小游戏，涵盖策略、休闲、益智、射击等多种类型。</p>
+    </div>
+    <div class="feature">
+      <h2>打开即玩</h2>
+      <p>纯 HTML5 前端技术，无需下载安装，无需注册登录，浏览器打开即可畅玩。</p>
+    </div>
+    <div class="feature">
+      <h2>完全免费</h2>
+      <p>所有游戏完全免费开放，无广告、无付费墙、无内购，纯粹的游戏乐趣。</p>
+    </div>
+  </section>
+
+  <!-- 游戏列表 -->
+  <section class="content">
+    <h2>🎮 游戏列表</h2>
+
+    <!-- 塔防战争 -->
+    <h3>🏰 塔防战争</h3>
+    <p>建造四种防御塔，抵御 15 波敌人的进攻！箭塔、炮塔、冰塔、电塔各具特色，升级你的防线，保卫领土！</p>
+    <table>
+      <thead><tr><th>属性</th><th>详情</th></tr></thead>
+      <tbody>
+        <tr><td>类型</td><td>策略塔防</td></tr>
+        <tr><td>防御塔</td><td>4 种（箭塔 / 炮塔 / 冰塔 / 电塔）</td></tr>
+        <tr><td>波次</td><td>15 波递增难度</td></tr>
+        <tr><td>特色</td><td>塔升级系统 · 出售回收 · 速度调节 · 键盘快捷键</td></tr>
+      </tbody>
+    </table>
+    <button class="btn-enter" data-game="td">进入游戏 →</button>
+
+    <hr>
+
+    <!-- 贪吃蛇 -->
+    <h3>🐍 贪吃蛇大作战</h3>
+    <p>经典贪吃蛇玩法，吃食物变长，速度逐步递增，挑战最高分！支持键盘（WASD / 方向键）和触屏滑动操作。</p>
+    <table>
+      <thead><tr><th>属性</th><th>详情</th></tr></thead>
+      <tbody>
+        <tr><td>类型</td><td>休闲经典</td></tr>
+        <tr><td>模式</td><td>无尽模式</td></tr>
+        <tr><td>操作</td><td>键盘 / 触屏</td></tr>
+        <tr><td>特色</td><td>速度递增 · 粒子特效 · 最高分记录</td></tr>
+      </tbody>
+    </table>
+    <button class="btn-enter" data-game="snake">进入游戏 →</button>
+
+    <hr>
+
+    <!-- 2048 -->
+    <h3>🔢 2048</h3>
+    <p>滑动合并相同数字，挑战 2048！精美的动画过渡效果，支持键盘方向键和触屏滑动，自动保存最高分。</p>
+    <table>
+      <thead><tr><th>属性</th><th>详情</th></tr></thead>
+      <tbody>
+        <tr><td>类型</td><td>益智数字</td></tr>
+        <tr><td>棋盘</td><td>4 × 4</td></tr>
+        <tr><td>操作</td><td>键盘 / 触屏</td></tr>
+        <tr><td>特色</td><td>流畅动画 · 合并特效 · 最高分持久化</td></tr>
+      </tbody>
+    </table>
+    <button class="btn-enter" data-game="2048">进入游戏 →</button>
+
+    <hr>
+
+    <!-- 飞机大战 -->
+    <h3>✈️ 飞机大战</h3>
+    <p>雷电风格飞行射击游戏！多种敌机类型、火力升级系统、Boss 战，鼠标/触屏控制战机自动射击。</p>
+    <table>
+      <thead><tr><th>属性</th><th>详情</th></tr></thead>
+      <tbody>
+        <tr><td>类型</td><td>射击街机</td></tr>
+        <tr><td>敌机类型</td><td>4 种（小型 / 中型 / 快速 / Boss）</td></tr>
+        <tr><td>道具</td><td>火力升级 / 回血</td></tr>
+        <tr><td>特色</td><td>Boss 战 · 3 级火力 · 震屏特效 · 3 条命</td></tr>
+      </tbody>
+    </table>
+    <button class="btn-enter" data-game="shmup">进入游戏 →</button>
+
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    Copyright © 2025 PlayHub · 纯前端 · 无广告 · 永久免费
+  </footer>
+</main>
+
+<!-- ==================== 游戏页面（iframe 嵌入） ==================== -->
+<div class="game-page" id="page-td">
+  <div class="game-page-header">
+    <button class="back-btn">← 返回首页</button>
+    <h2>🏰 塔防战争</h2>
+  </div>
+  <div class="game-full">
+    <iframe class="game-frame" src="games/tower-defense.html"
+            width="1060" height="640" allow="autoplay" loading="lazy"
+            title="塔防战争"></iframe>
+  </div>
+</div>
+
+<div class="game-page" id="page-snake">
+  <div class="game-page-header">
+    <button class="back-btn">← 返回首页</button>
+    <h2>🐍 贪吃蛇大作战</h2>
+  </div>
+  <div class="game-full">
+    <iframe class="game-frame" src="games/snake.html"
+            width="620" height="460" allow="autoplay" loading="lazy"
+            title="贪吃蛇大作战"></iframe>
+  </div>
+</div>
+
+<div class="game-page" id="page-2048">
+  <div class="game-page-header">
+    <button class="back-btn">← 返回首页</button>
+    <h2>🔢 2048</h2>
+  </div>
+  <div class="game-full">
+    <iframe class="game-frame" src="games/2048.html"
+            width="620" height="420" allow="autoplay" loading="lazy"
+            title="2048"></iframe>
+  </div>
+</div>
+
+<div class="game-page" id="page-shmup">
+  <div class="game-page-header">
+    <button class="back-btn">← 返回首页</button>
+    <h2>✈️ 飞机大战</h2>
+  </div>
+  <div class="game-full">
+    <iframe class="game-frame" src="games/shmup.html"
+            width="620" height="660" allow="autoplay" loading="lazy"
+            title="飞机大战"></iframe>
+  </div>
+</div>
+
+<script src="js/main.js"></script>
+</body>
+</html>

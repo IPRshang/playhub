@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>✈️ 飞机大战</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#1a1a2e;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;user-select:none;gap:10px;padding:10px}
+.game-wrapper{display:flex;gap:16px;align-items:flex-start}
+canvas{border:2px solid #333;border-radius:8px;background:#0a0a1e;cursor:none;box-shadow:0 0 40px rgba(0,0,0,0.5)}
+.panel{background:#16213e;border:2px solid #0f3460;border-radius:8px;padding:16px;color:#eee;width:170px;box-shadow:0 0 20px rgba(0,0,0,0.3)}
+.panel h2{font-size:16px;color:#4ecdc4;text-align:center;margin-bottom:12px;border-bottom:1px solid #333;padding-bottom:8px}
+.sr{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #222;font-size:13px}
+.sl{color:#aaa}.sv{font-weight:bold}.sv.score{color:#f39c12}.sv.best{color:#e94560}.sv.lives{color:#ff6b6b}
+.btn{display:block;width:100%;padding:10px;margin-top:10px;border:none;border-radius:6px;font-size:13px;font-weight:bold;cursor:pointer;font-family:inherit;transition:all 0.2s}
+.btn-r{background:#e94560;color:white}.btn-r:hover{background:#c0392b}
+.hint{font-size:11px;color:#555;text-align:center;margin-top:8px}
+.overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:flex;justify-content:center;align-items:center;z-index:200;display:none}
+.overlay.show{display:flex}
+.obox{background:#16213e;border:2px solid #e94560;border-radius:16px;padding:32px;text-align:center;color:white}
+.obox h1{font-size:28px;color:#e94560;margin-bottom:12px}.obox p{font-size:16px;margin-bottom:20px;color:#ccc}
+@media(max-width:600px){.game-wrapper{flex-direction:column;align-items:center}.panel{width:100%;max-width:360px}canvas{width:100%;height:auto}}
+</style>
+</head>
+<body>
+<div class="game-wrapper">
+<canvas id="c" width="400" height="600"></canvas>
+<div class="panel"><h2>✈️ 飞机大战</h2>
+<div class="sr"><span class="sl">🏆 分数</span><span class="sv score" id="score">0</span></div>
+<div class="sr"><span class="sl">👑 最高分</span><span class="sv best" id="best">0</span></div>
+<div class="sr"><span class="sl">❤️ 生命</span><span class="sv lives" id="lives">3</span></div>
+<button class="btn btn-r" onclick="restart()">🔄 重新开始</button>
+<div class="hint">鼠标/触屏移动<br>自动射击</div></div></div>
+<div class="overlay" id="ov"><div class="obox"><h1>💀 游戏结束</h1><p>最终得分: <b id="fs">0</b></p><button class="btn btn-r" onclick="restart()">🔄 再来一局</button></div></div>
+<script>
+const c=document.getElementById('c'),x=c.getContext('2d'),W=c.width,H=c.height;
+let pl,bls=[],ens=[],pts=[],pus=[],ebs=[],sc=0,bs=0,lv=3,gov=!1,fc=0,sa=0,mx=W/2,my=H-80;
+bs=localStorage.getItem('shmupBest')||0;document.getElementById('best').textContent=bs;
+
+class Player{constructor(){this.x=W/2;this.y=H-80;this.w=30;this.h=36;this.sp=5;this.fc=0;this.fr=8;this.iv=0;this.pl=1;this.pt=0}
+update(){let dx=mx-this.x,dy=my-this.y,dist=Math.sqrt(dx*dx+dy*dy);if(dist>2){this.x+=(dx/dist)*Math.min(dist,this.sp);this.y+=(dy/dist)*Math.min(dist,this.sp)}this.x=Math.max(this.w/2,Math.min(W-this.w/2,this.x));this.y=Math.max(this.h/2,Math.min(H-this.h/2,this.y));if(this.iv>0)this.iv--;if(this.pt>0){this.pt--;if(this.pt===0)this.pl=Math.max(1,this.pl-1)}if(this.fc>0)this.fc--;else{this.shoot();this.fc=this.fr}}
+shoot(){if(this.pl>=3){bls.push(new Bullet(this.x-10,this.y-this.h/2,0,-8));bls.push(new Bullet(this.x,this.y-this.h/2,0,-8));bls.push(new Bullet(this.x+10,this.y-this.h/2,0,-8));bls.push(new Bullet(this.x-5,this.y-this.h/2,-0.5,-8));bls.push(new Bullet(this.x+5,this.y-this.h/2,0.5,-8))}else if(this.pl>=2){bls.push(new Bullet(this.x-8,this.y-this.h/2,0,-8));bls.push(new Bullet(this.x+8,this.y-this.h/2,0,-8))}else{bls.push(new Bullet(this.x,this.y-this.h/2,0,-8))}}
+hit(){if(this.iv>0)return;lv--;this.iv=60;this.pl=Math.max(1,this.pl-1);sa=10;for(let i=0;i<15;i++)pts.push(new Pt(this.x,this.y,'#e94560',5));if(lv<=0)end()}
+draw(x){if(this.iv>0&&Math.floor(this.iv/4)%2===0)return;let fl=10+Math.random()*8;x.fillStyle='#f39c12';x.beginPath();x.moveTo(this.x-8,this.y+this.h/2);x.lineTo(this.x,this.y+this.h/2+fl);x.lineTo(this.x+8,this.y+this.h/2);x.fill();x.fillStyle='#e94560';x.beginPath();x.moveTo(this.x-4,this.y+this.h/2);x.lineTo(this.x,this.y+this.h/2+fl*0.6);x.lineTo(this.x+4,this.y+this.h/2);x.fill();x.fillStyle='#4ecdc4';x.beginPath();x.moveTo(this.x,this.y-this.h/2);x.lineTo(this.x+this.w/2,this.y+this.h/2);x.lineTo(this.x+this.w/4,this.y+this.h/4);x.lineTo(this.x-this.w/4,this.y+this.h/4);x.lineTo(this.x-this.w/2,this.y+this.h/2);x.closePath();x.fill();x.strokeStyle='#7edcd4';x.lineWidth=1;x.stroke();x.fillStyle='#fff';x.beginPath();x.arc(this.x,this.y-4,5,0,Math.PI*2);x.fill();x.fillStyle='#1a1a2e';x.beginPath();x.arc(this.x,this.y-4,3,0,Math.PI*2);x.fill()}}
+class Bullet{constructor(x,y,vx,vy){this.x=x;this.y=y;this.vx=vx;this.vy=vy;this.alive=!0}
+update(){this.x+=this.vx;this.y+=this.vy;if(this.y<-10||this.y>H+10||this.x<-10||this.x>W+10)this.alive=!1}
+draw(x){x.fillStyle='#f1c40f';x.shadowColor='#f1c40f';x.shadowBlur=6;x.fillRect(this.x-1.5,this.y-4,3,8);x.shadowBlur=0}}
+class Enemy{constructor(tp){this.type=tp;this.alive=!0;switch(tp){case'small':this.x=Math.random()*W;this.y=-20;this.vx=(Math.random()-0.5)*2;this.vy=1.5+Math.random()*2;this.hp=1;this.sz=12;this.cl='#e74c3c';this.sc=100;break;case'medium':this.x=Math.random()*W;this.y=-30;this.vx=(Math.random()-0.5)*1.5;this.vy=1+Math.random();this.hp=3;this.sz=18;this.cl='#e67e22';this.sc=300;this.ft=40+Math.random()*60;break;case'fast':this.x=Math.random()<0.5?-20:W+20;this.y=50+Math.random()*200;this.vx=this.x<0?3:-3;this.vy=(Math.random()-0.5)*2;this.hp=1;this.sz=10;this.cl='#9b59b6';this.sc=150;break;case'boss':this.x=W/2;this.y=-50;this.vx=1;this.vy=0.8;this.hp=30+sc*0.01;this.sz=35;this.cl='#c0392b';this.sc=2000;this.ft=20;break}this.mhp=this.hp;this.flt=0}
+update(){this.x+=this.vx;this.y+=this.vy;if(this.flt>0)this.flt--;if(this.type==='boss'){if(this.x<this.sz||this.x>W-this.sz)this.vx*=-1;if(this.y>150)this.vy=0;this.ft--;if(this.ft<=0){this.ft=15+Math.random()*20;let a=Math.atan2(pl.y-this.y,pl.x-this.x);for(let i=-2;i<=2;i++)ebs.push(new EB(this.x,this.y,Math.cos(a+i*0.2)*3,Math.sin(a+i*0.2)*3))}}else if(this.type==='medium'){this.ft--;if(this.ft<=0){this.ft=50+Math.random()*70;ebs.push(new EB(this.x,this.y,0,3))}}if(this.y>H+50||this.y<-100||this.x<-100||this.x>W+100){if(this.type!=='boss')this.alive=!1}}
+hit(dmg){this.hp-=dmg;this.flt=4;for(let i=0;i<3;i++)pts.push(new Pt(this.x,this.y,'#fff',2));if(this.hp<=0){this.alive=!1;sc+=this.sc;let ct=this.type==='boss'?30:8;for(let i=0;i<ct;i++)pts.push(new Pt(this.x,this.y,this.cl,4));if(Math.random()<0.15||this.type==='boss')pus.push(new PU(this.x,this.y))}}
+draw(x){let fl=this.flt>0;x.fillStyle=fl?'#fff':this.cl;if(this.type==='boss'){x.beginPath();x.arc(this.x,this.y,this.sz,0,Math.PI*2);x.fill();x.strokeStyle='#e74c3c';x.lineWidth=3;x.stroke();x.fillStyle='#fff';x.beginPath();x.arc(this.x-10,this.y-5,6,0,Math.PI*2);x.fill();x.beginPath();x.arc(this.x+10,this.y-5,6,0,Math.PI*2);x.fill();x.fillStyle='#111';x.beginPath();x.arc(this.x-8,this.y-5,3,0,Math.PI*2);x.fill();x.beginPath();x.arc(this.x+8,this.y-5,3,0,Math.PI*2);x.fill()}else{x.beginPath();x.moveTo(this.x,this.y-this.sz);x.lineTo(this.x+this.sz,this.y+this.sz*0.6);x.lineTo(this.x-this.sz,this.y+this.sz*0.6);x.closePath();x.fill()}if(this.mhp>2){let bw=this.sz*2;x.fillStyle='#333';x.fillRect(this.x-bw/2,this.y-this.sz-12,bw,4);x.fillStyle='#e94560';x.fillRect(this.x-bw/2,this.y-this.sz-12,bw*(this.hp/this.mhp),4)}}}
+class EB{constructor(x,y,vx,vy){this.x=x;this.y=y;this.vx=vx;this.vy=vy;this.alive=!0}
+update(){this.x+=this.vx;this.y+=this.vy;if(this.y>H+10||this.y<-10||this.x<-10||this.x>W+10)this.alive=!1}
+draw(x){x.fillStyle='#ff6b6b';x.shadowColor='#ff6b6b';x.shadowBlur=4;x.beginPath();x.arc(this.x,this.y,3,0,Math.PI*2);x.fill();x.shadowBlur=0}}
+class PU{constructor(x,y){this.x=x;this.y=y;this.vy=1.5;this.alive=!0;this.type=Math.random()<0.5?'power':'heal'}
+update(){this.y+=this.vy;if(this.y>H+20)this.alive=!1}
+draw(x){x.fillStyle=this.type==='power'?'#f1c40f':'#2ecc71';x.shadowColor=x.fillStyle;x.shadowBlur=8;let ic=this.type==='power'?'⚡':'❤️';x.font='16px sans-serif';x.textAlign='center';x.fillText(ic,this.x,this.y);x.shadowBlur=0}}
+class Pt{constructor(x,y,cl,sp){this.x=x;this.y=y;let a=Math.random()*Math.PI*2,sd=sp*(0.3+Math.random());this.vx=Math.cos(a)*sd;this.vy=Math.sin(a)*sd;this.life=15+Math.random()*15;this.alive=!0;this.cl=cl;this.sz=1+Math.random()*2}
+update(){this.x+=this.vx;this.y+=this.vy;this.life--;if(this.life<=0)this.alive=!1}
+draw(x){let a=this.life/30;x.globalAlpha=a;x.fillStyle=this.cl;x.beginPath();x.arc(this.x,this.y,this.sz,0,Math.PI*2);x.fill();x.globalAlpha=1}}
+
+function init(){pl=new Player();bls=[];ens=[];ebs=[];pts=[];pus=[];sc=0;lv=3;gov=!1;fc=0;sa=0;mx=W/2;my=H-80;document.getElementById('ov').classList.remove('show');upUI()}
+function spawn(){fc++;let rate=Math.max(20,60-Math.floor(sc/500));if(fc%rate===0){let r=Math.random();if(r<0.6)ens.push(new Enemy('small'));else if(r<0.85)ens.push(new Enemy('medium'));else ens.push(new Enemy('fast'))}if(sc>0&&sc%2000<50&&!ens.some(e=>e.type==='boss')&&fc%30===0)ens.push(new Enemy('boss'))}
+function update(){if(gov)return;pl.update();spawn();for(let b of bls)b.update();for(let e of ens)e.update();for(let eb of ebs)eb.update();for(let p of pts)p.update();for(let pu of pus)pu.update();
+for(let b of bls){if(!b.alive)continue;for(let e of ens){if(!e.alive)continue;let dx=b.x-e.x,dy=b.y-e.y;if(Math.sqrt(dx*dx+dy*dy)<e.sz){b.alive=!1;e.hit(1);break}}}
+for(let eb of ebs){if(!eb.alive)continue;let dx=eb.x-pl.x,dy=eb.y-pl.y;if(Math.sqrt(dx*dx+dy*dy)<15){eb.alive=!1;pl.hit()}}
+for(let e of ens){if(!e.alive)continue;let dx=e.x-pl.x,dy=e.y-pl.y;if(Math.sqrt(dx*dx+dy*dy)<e.sz+15){e.alive=!1;pl.hit()}}
+for(let pu of pus){if(!pu.alive)continue;let dx=pu.x-pl.x,dy=pu.y-pl.y;if(Math.sqrt(dx*dx+dy*dy)<25){pu.alive=!1;if(pu.type==='power'){pl.pl=Math.min(3,pl.pl+1);pl.pt=300}else{lv=Math.min(5,lv+1)}for(let i=0;i<10;i++)pts.push(new Pt(pu.x,pu.y,pu.type==='power'?'#f1c40f':'#2ecc71',3))}}
+bls=bls.filter(b=>b.alive);ens=ens.filter(e=>e.alive);ebs=ebs.filter(eb=>eb.alive);pts=pts.filter(p=>p.alive);pus=pus.filter(pu=>pu.alive);if(sa>0)sa*=0.8;if(sa<0.5)sa=0;upUI()}
+function end(){gov=!0;if(sc>bs){bs=sc;localStorage.setItem('shmupBest',bs)}document.getElementById('fs').textContent=sc;document.getElementById('ov').classList.add('show');upUI()}
+function upUI(){document.getElementById('score').textContent=sc;document.getElementById('best').textContent=bs;document.getElementById('lives').textContent=lv}
+function restart(){init()}
+c.addEventListener('mousemove',e=>{let r=c.getBoundingClientRect();mx=e.clientX-r.left;my=e.clientY-r.top});
+c.addEventListener('touchmove',e=>{e.preventDefault();let r=c.getBoundingClientRect();mx=e.touches[0].clientX-r.left;my=e.touches[0].clientY-r.top},{passive:!1});
+c.addEventListener('touchstart',e=>{e.preventDefault();let r=c.getBoundingClientRect();mx=e.touches[0].clientX-r.left;my=e.touches[0].clientY-r.top},{passive:!1});
+function draw(){x.clearRect(0,0,W,H);x.fillStyle='rgba(255,255,255,0.5)';for(let i=0;i<50;i++){let sx=(i*137+fc*(0.3+i*0.05))%W,sy=(i*97+fc*(1+i*0.1))%H;x.fillRect(sx,sy,1+(i%2),1+(i%2))}
+let sx=0,sy=0;if(sa>0){sx=(Math.random()-0.5)*sa;sy=(Math.random()-0.5)*sa}x.save();x.translate(sx,sy);
+for(let pu of pus)pu.draw(x);for(let b of bls)b.draw(x);for(let eb of ebs)eb.draw(x);for(let e of ens)e.draw(x);for(let p of pts)p.draw(x);pl.draw(x);x.restore();requestAnimationFrame(draw)}
+function loop(){update();requestAnimationFrame(loop)}
+init();loop();draw();
+</script>
+</body>
+</html>
