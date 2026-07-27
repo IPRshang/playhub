@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub Pages 部署教程</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #f6f8fa;
+  color: #2c3e50;
+  line-height: 1.8;
+  padding: 40px 20px;
+}
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+h1 {
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #3eaf7c, #2c3e50);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.subtitle { text-align: center; color: #6a8bad; margin-bottom: 40px; }
+
+.step {
+  background: #fff;
+  border: 1px solid #eaecef;
+  border-radius: 12px;
+  padding: 28px;
+  margin-bottom: 24px;
+  position: relative;
+}
+.step-num {
+  position: absolute;
+  top: -16px;
+  left: 24px;
+  background: #3eaf7c;
+  color: #fff;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+}
+.step h2 { font-size: 1.2rem; margin-bottom: 12px; color: #3eaf7c; }
+.step p { margin-bottom: 8px; color: #4e6e8e; }
+
+.mock-ui {
+  border: 1px solid #dfe2e5;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 12px 0;
+  background: #fff;
+}
+.mock-header {
+  background: #24292f;
+  color: #fff;
+  padding: 8px 14px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.mock-header .dot { width: 10px; height: 10px; border-radius: 50%; }
+.mock-header .dot.r { background: #ff5f56; }
+.mock-header .dot.y { background: #ffbd2e; }
+.mock-header .dot.g { background: #27c93f; }
+.mock-body { padding: 16px; }
+
+/* CodeBuddy 界面模拟 */
+.cb-sidebar { background: #1e1e2e; color: #cdd6f4; padding: 12px; font-size: 13px; }
+.cb-sidebar .menu-item { padding: 6px 10px; border-radius: 4px; cursor: pointer; margin: 2px 0; }
+.cb-sidebar .menu-item:hover { background: #313244; }
+.cb-sidebar .menu-item.active { background: #3eaf7c; color: #fff; }
+.cb-sidebar .menu-icon { margin-right: 8px; }
+
+/* GitHub 界面模拟 */
+.gh-header { background: #24292f; color: #fff; padding: 10px 16px; font-size: 13px; display: flex; align-items: center; gap: 10px; }
+.gh-btn {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid #d0d7de;
+  background: #f6f8fa;
+  color: #24292f;
+  font-family: inherit;
+}
+.gh-btn.green { background: #2da44e; color: #fff; border-color: #2da44e; }
+.gh-btn.green:hover { background: #2c974b; }
+.gh-input {
+  padding: 6px 12px;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  font-size: 14px;
+  width: 100%;
+  margin: 6px 0;
+  font-family: inherit;
+}
+.gh-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  font-size: 13px;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+}
+.gh-tab.active { border-bottom-color: #fd8c73; font-weight: 600; }
+
+.result-box {
+  background: #f0fff4;
+  border: 2px solid #3eaf7c;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 16px;
+  text-align: center;
+}
+.result-box .url {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #3eaf7c;
+  word-break: break-all;
+}
+
+.arrow-down {
+  text-align: center;
+  font-size: 24px;
+  color: #3eaf7c;
+  margin: 8px 0;
+}
+
+ol { padding-left: 20px; }
+ol li { margin-bottom: 6px; color: #4e6e8e; }
+
+.highlight { background: #fff3cd; padding: 2px 6px; border-radius: 3px; font-weight: 600; }
+.code { background: #f6f8fa; padding: 2px 6px; border-radius: 3px; font-family: monospace; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>🚀 GitHub Pages 部署教程</h1>
+<p class="subtitle">三步完成，把你的小游戏网站发布到互联网</p>
+
+<!-- 第1步 -->
+<div class="step">
+  <div class="step-num">1</div>
+  <h2>在 CodeBuddy 中授权 GitHub</h2>
+  <p>点击 CodeBuddy 左下角的 <span class="highlight">⚙️ 设置</span> 图标：</p>
+
+  <div class="mock-ui">
+    <div class="mock-header"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span> CodeBuddy</div>
+    <div style="display:flex;min-height:200px">
+      <div class="cb-sidebar" style="width:200px">
+        <div class="menu-item"><span class="menu-icon">⚙️</span> 设置</div>
+        <div class="menu-item active" style="margin-left:16px">🔌 连接器</div>
+        <div class="menu-item" style="margin-left:16px">🎨 主题</div>
+        <div class="menu-item" style="margin-left:16px">⌨️ 快捷键</div>
+      </div>
+      <div style="flex:1;padding:16px">
+        <p style="font-weight:600;margin-bottom:12px">🔌 连接器管理</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px;border:1px solid #eaecef;border-radius:8px;margin-bottom:8px">
+          <div>
+            <span style="font-size:18px;margin-right:8px">🐙</span>
+            <span style="font-weight:600">GitHub</span>
+            <span style="color:#888;font-size:12px;margin-left:8px">未连接</span>
+          </div>
+          <button class="gh-btn green" style="animation:pulse 1.5s infinite">🔗 连接</button>
+        </div>
+        <p style="font-size:12px;color:#888;margin-top:8px">👆 点击右侧绿色 <b>"连接"</b> 按钮，按提示完成 OAuth 授权</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="arrow-down">⬇️</div>
+
+<!-- 第2步 -->
+<div class="step">
+  <div class="step-num">2</div>
+  <h2>在 GitHub 上创建仓库</h2>
+  <p>打开 <span class="code">github.com</span>，登录后点击右上角 <span class="highlight">+</span> → <span class="highlight">New repository</span>：</p>
+
+  <div class="mock-ui">
+    <div class="gh-header">🐙 GitHub</div>
+    <div class="mock-body">
+      <p style="font-weight:600;font-size:18px;margin-bottom:16px">Create a new repository</p>
+
+      <div style="margin-bottom:12px">
+        <label style="font-size:13px;font-weight:600">Repository name *</label>
+        <input class="gh-input" value="playhub" style="background:#f0fff4">
+      </div>
+
+      <div style="margin-bottom:12px">
+        <label style="font-size:13px;font-weight:600">Description (optional)</label>
+        <input class="gh-input" value="🎮 在线小游戏中心 - 塔防、贪吃蛇、2048、飞机大战">
+      </div>
+
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <input type="radio" checked> <span>🔓 Public（公开仓库）</span>
+      </div>
+
+      <div style="margin-bottom:12px;font-size:12px;color:#888">
+        ⚠️ 不要勾选 "Add a README file"（我们已经有了）
+      </div>
+
+      <button class="gh-btn green" style="padding:8px 24px;font-size:15px">Create repository</button>
+    </div>
+  </div>
+
+  <p style="margin-top:12px">
+    创建后你会看到一个页面显示：<br>
+    <span class="code">…or push an existing repository from the command line</span>
+  </p>
+</div>
+
+<div class="arrow-down">⬇️</div>
+
+<!-- 第3步 -->
+<div class="step">
+  <div class="step-num">3</div>
+  <h2>回到 CodeBuddy，告诉我「已授权」</h2>
+  <p>完成上面两步后，回到这里告诉我，我会执行：</p>
+
+  <ol>
+    <li>把代码推送到你的 GitHub 仓库</li>
+    <li>在仓库设置中开启 GitHub Pages</li>
+    <li>等待 Actions 自动部署完成（约 30 秒）</li>
+  </ol>
+
+  <div class="result-box">
+    <p style="margin-bottom:4px">🎉 你的网站地址将是：</p>
+    <div class="url">https://你的用户名.github.io/playhub/</div>
+  </div>
+
+  <p style="text-align:center;margin-top:16px;color:#888;font-size:13px">
+    之后每次你推送新代码，GitHub Actions 会自动重新部署，无需手动操作 ✨
+  </p>
+</div>
+
+</div>
+</body>
+</html>

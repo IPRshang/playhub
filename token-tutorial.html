@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub Token 创建教程</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; background: #0d1117; color: #c9d1d9; padding: 40px 20px; line-height: 1.8; }
+.container { max-width: 750px; margin: 0 auto; }
+h1 { text-align: center; font-size: 2rem; margin-bottom: 8px; color: #58a6ff; }
+.sub { text-align: center; color: #8b949e; margin-bottom: 36px; }
+.step { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 28px; margin-bottom: 20px; }
+.step h2 { font-size: 1.1rem; color: #58a6ff; margin-bottom: 10px; }
+.step p { color: #8b949e; margin-bottom: 6px; }
+.step ol { padding-left: 20px; color: #8b949e; }
+.step ol li { margin-bottom: 6px; }
+.gh-bar { background: #161b22; border-bottom: 1px solid #30363d; padding: 8px 16px; font-size: 13px; display: flex; align-items: center; gap: 10px; color: #c9d1d9; border-radius: 8px 8px 0 0; }
+.gh-body { border: 1px solid #30363d; border-top: none; padding: 20px; border-radius: 0 0 8px 8px; background: #0d1117; margin-bottom: 12px; }
+.highlight { background: #1f6feb33; color: #58a6ff; padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+.code { background: #21262d; padding: 2px 8px; border-radius: 4px; font-family: monospace; font-size: 13px; color: #7ee787; }
+.warn { background: #da363322; border: 1px solid #da3633; border-radius: 8px; padding: 12px 16px; margin: 12px 0; color: #f85149; font-size: 14px; }
+.ok { background: #23863622; border: 1px solid #238636; border-radius: 8px; padding: 12px 16px; margin: 12px 0; color: #7ee787; font-size: 14px; }
+.btn { display: inline-block; padding: 5px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; background: #238636; color: #fff; border: 1px solid #2ea043; }
+.btn-gray { background: #21262d; color: #c9d1d9; border-color: #30363d; }
+input { padding: 6px 12px; border: 1px solid #30363d; border-radius: 6px; font-size: 14px; width: 100%; background: #0d1117; color: #c9d1d9; margin: 6px 0; }
+label { font-size: 13px; font-weight: 600; display: block; margin-top: 12px; }
+.arrow { text-align: center; font-size: 20px; color: #58a6ff; margin: 12px 0; }
+.emoji { font-size: 18px; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>🔑 创建 GitHub Personal Access Token</h1>
+<p class="sub">4 步搞定，大约 1 分钟</p>
+
+<div class="step">
+  <h2>第 1 步：打开 Token 设置页面</h2>
+  <p>点击下方链接，直接跳转到 GitHub Token 创建页面：</p>
+  <p style="margin:12px 0">
+    <a href="https://github.com/settings/tokens/new" target="_blank" style="color:#58a6ff;font-size:1.1rem;text-decoration:underline">
+      👉 https://github.com/settings/tokens/new
+    </a>
+  </p>
+  <p style="color:#8b949e;font-size:13px">（如果没登录 GitHub，会先让你登录）</p>
+</div>
+
+<div class="arrow">⬇️</div>
+
+<div class="step">
+  <h2>第 2 步：填写 Token 信息</h2>
+
+  <div class="gh-bar">📝 Token 设置</div>
+  <div class="gh-body">
+    <label>Note（备注名称）</label>
+    <input value="PlayHub Deploy" style="background:#161b22">
+
+    <label>Expiration（过期时间）</label>
+    <select style="padding:6px 12px;border:1px solid #30363d;border-radius:6px;font-size:14px;width:100%;margin:6px 0;background:#161b22;color:#c9d1d9">
+      <option>No expiration（永不过期）</option>
+    </select>
+    <p style="font-size:12px;color:#8b949e">推荐选「No expiration」，省得以后重新生成</p>
+  </div>
+</div>
+
+<div class="arrow">⬇️</div>
+
+<div class="step">
+  <h2>第 3 步：勾选权限（重要！）</h2>
+
+  <div class="gh-bar">🔐 权限设置</div>
+  <div class="gh-body">
+    <p style="margin-bottom:8px;color:#c9d1d9">找到下面这些选项，<b>打勾</b>：</p>
+
+    <div style="border:1px solid #30363d;border-radius:6px;padding:12px;margin:8px 0;background:#161b22">
+      <label style="color:#c9d1d9;margin-top:0">☑️ <b>repo</b>（仓库完全访问权限）</label>
+      <p style="font-size:12px;color:#8b949e;margin-left:24px">勾选这一个会自动勾选下面所有子项</p>
+    </div>
+
+    <div style="border:1px solid #30363d;border-radius:6px;padding:12px;margin:8px 0;background:#161b22">
+      <label style="color:#c9d1d9;margin-top:0">☑️ <b>workflow</b>（GitHub Actions 权限）</label>
+      <p style="font-size:12px;color:#8b949e;margin-left:24px">用于自动部署</p>
+    </div>
+
+    <p style="font-size:12px;color:#8b949e">只勾这两个就够了，其他的不用管</p>
+  </div>
+</div>
+
+<div class="arrow">⬇️</div>
+
+<div class="step">
+  <h2>第 4 步：生成并复制 Token</h2>
+  <p>拉到页面最底部，点击绿色按钮：</p>
+  <p style="text-align:center;margin:16px 0">
+    <span class="btn" style="font-size:15px;padding:8px 24px">Generate token</span>
+  </p>
+
+  <div class="warn">
+    ⚠️ <b>重要：生成后立刻复制 Token！</b><br>
+    Token 只显示一次，关闭页面后就再也看不到了。格式类似：<br>
+    <span class="code">ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span>
+  </div>
+</div>
+
+<div class="arrow">⬇️</div>
+
+<div class="step">
+  <h2>第 5 步：回到这里告诉我</h2>
+  <p>把下面两个信息告诉我，我立刻推送代码：</p>
+
+  <div class="gh-body" style="margin-top:12px">
+    <label>你的 GitHub 用户名：</label>
+    <input value="例如：iprshang" style="background:#161b22">
+
+    <label>你的 Token：</label>
+    <input value="ghp_xxxxxxxxxxxxxxxxxxxx" style="background:#161b22;margin-bottom:8px">
+
+    <p style="font-size:12px;color:#8b949e;margin-top:4px">格式：<span class="code">用户名 + Token</span>，直接发给我即可</p>
+  </div>
+
+  <div class="ok" style="margin-top:16px">
+    ✅ Token 只用一次，推送完成后你可以随时在 GitHub 上删除它。
+  </div>
+</div>
+
+</div>
+</body>
+</html>

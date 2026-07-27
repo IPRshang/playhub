@@ -42,15 +42,8 @@
     }
     currentGame = name;
 
-    // 延迟加载 iframe：首次点击时才设置 src
+    // iframe 已在 HTML 中设置了 src，无需额外加载逻辑
     if (!gameLoaded[name]) {
-      var iframe = document.getElementById('iframe-' + name);
-      if (iframe) {
-        var src = iframe.getAttribute('data-src');
-        if (src) {
-          iframe.src = src;
-        }
-      }
       gameLoaded[name] = true;
     }
 
@@ -123,12 +116,8 @@
     });
   });
 
-  // ========== iframe 延迟加载 ==========
-  document.querySelectorAll('.game-frame').forEach(function (iframe) {
-    var src = iframe.src;
-    iframe.removeAttribute('src');
-    iframe.setAttribute('data-src', src);
-  });
+  // ========== iframe 加载（直接加载，不再延迟） ==========
+  // 游戏 iframe 在页面加载时直接设置 src，无需延迟
 
   // ========== 暴露全局接口 ==========
   window.PlayHub = {
