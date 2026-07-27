@@ -3,279 +3,543 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>铁幕 · 现代战争棋</title>
+<title>铁幕 · 防线指挥官</title>
 <style>
 :root {
-    --bg: #1a1a2e; --panel: #16213e; --accent: #e94560; --gold: #f0a500;
-    --blue-team: #4cc9f0; --red-team: #f72585;
-    --cell-light: #2d2d44; --cell-dark: #252540;
-    --text: #e0e0e0; --text-dim: #888;
-    --highlight-move: rgba(76,201,240,0.4); --highlight-attack: rgba(247,37,133,0.5);
-    --highlight-selected: rgba(240,165,0,0.6); --highlight-special: rgba(114,9,183,0.5);
+  --bg:#0a0a14; --panel:#141428; --text:#e0e0f0; --text-dim:#8888aa;
+  --accent:#ff5e7a; --gold:#ffb830; --blue:#4dc9f6; --green:#00d4aa;
 }
-* { margin:0; padding:0; box-sizing:border-box; }
-body {
-    background: var(--bg); color: var(--text);
-    font-family: 'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
-    display: flex; justify-content: center; align-items: flex-start;
-    min-height: 100vh; overflow-x: hidden; padding: 10px 0;
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+  display:flex; justify-content:center; align-items:center;
+  min-height:100vh; overflow:hidden; user-select:none;
 }
-.game-container {
-    display: flex; gap: 16px; padding: 10px;
-    max-width: 1060px; width: 100%; flex-wrap: wrap; justify-content: center;
+.game-wrap{
+  display:flex; gap:16px; padding:16px; max-width:1000px; width:100%;
+  flex-wrap:wrap; justify-content:center; align-items:flex-start;
 }
-.board-wrapper {
-    background: var(--panel); border-radius: 10px; padding: 12px;
-    box-shadow: 0 6px 24px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08);
+canvas{border-radius:8px; cursor:pointer; box-shadow:0 4px 24px rgba(0,0,0,0.5);}
+
+.panel{
+  background:var(--panel); border-radius:12px; padding:16px;
+  min-width:220px; max-width:260px;
+  border:1px solid rgba(255,255,255,0.06);
+  display:flex; flex-direction:column; gap:12px;
 }
-.board-title {
-    text-align: center; font-size: 1.2em; font-weight: bold; margin-bottom: 8px; letter-spacing: 2px;
-    background: linear-gradient(135deg,var(--gold),var(--accent));
-    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+.panel h2{font-size:1em; text-align:center;
+  background:linear-gradient(135deg,var(--gold),var(--accent));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
 }
-canvas#board { display:block; border-radius:4px; cursor:pointer; }
-.sidebar {
-    background: var(--panel); border-radius: 10px; padding: 16px;
-    box-shadow: 0 6px 24px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08);
-    min-width: 240px; max-width: 280px; display: flex; flex-direction: column; gap: 12px;
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;}
+.stat-label{color:var(--text-dim);font-size:.82em;}
+.stat-val{font-weight:700;font-size:1.1em;}
+.stat-val.gold{color:var(--gold);}
+.stat-val.kills{color:var(--accent);}
+
+.unit-shop{display:flex;flex-direction:column;gap:8px;}
+.unit-btn{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;
+  border-radius:10px;border:1px solid rgba(255,255,255,0.08);
+  background:rgba(255,255,255,0.03);cursor:pointer;
+  transition:all .2s;color:var(--text);font-family:inherit;
 }
-.turn-indicator { text-align:center; padding:10px; border-radius:6px; font-weight:bold; font-size:1em; transition:all 0.3s; }
-.turn-blue { background:rgba(76,201,240,0.15); color:var(--blue-team); border:1px solid rgba(76,201,240,0.3); }
-.turn-red { background:rgba(247,37,133,0.15); color:var(--red-team); border:1px solid rgba(247,37,133,0.3); }
-.info-section { background:rgba(0,0,0,0.2); border-radius:6px; padding:10px; }
-.info-section h3 { font-size:0.8em; color:var(--text-dim); margin-bottom:6px; text-transform:uppercase; letter-spacing:1px; }
-.info-section .content { font-size:0.85em; line-height:1.5; }
-.piece-legend { display:grid; grid-template-columns:1fr 1fr; gap:4px; font-size:0.72em; }
-.legend-item { display:flex; align-items:center; gap:4px; padding:3px 4px; border-radius:4px; background:rgba(255,255,255,0.03); }
-.legend-icon { font-size:1.1em; width:22px; text-align:center; }
-.btn { padding:8px 14px; border:none; border-radius:6px; cursor:pointer; font-size:0.85em; font-weight:bold; transition:all 0.2s; letter-spacing:0.5px; }
-.btn:hover { transform:translateY(-1px); }
-.btn:active { transform:translateY(0); }
-.btn-primary { background:var(--accent); color:white; }
-.btn-secondary { background:rgba(255,255,255,0.1); color:var(--text); }
-.btn-warn { background:rgba(240,165,0,0.8); color:#1a1a2e; }
-.game-log { background:rgba(0,0,0,0.3); border-radius:6px; padding:8px; max-height:150px; overflow-y:auto; font-size:0.72em; line-height:1.5; }
-.log-entry { padding:2px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
-.log-blue { color:var(--blue-team); } .log-red { color:var(--red-team); }
-.log-kill { color:#ff6b6b; } .log-info { color:var(--gold); }
-.modal-overlay { display:none; position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.7); z-index:100; justify-content:center; align-items:center; }
-.modal-overlay.active { display:flex; }
-.modal { background:var(--panel); border-radius:14px; padding:28px; text-align:center; max-width:380px; border:1px solid rgba(255,255,255,0.1); }
-.modal h2 { font-size:1.4em; margin-bottom:10px; }
-.modal .winner-icon { font-size:2.6em; margin-bottom:6px; }
-.modal .btns { display:flex; gap:8px; justify-content:center; margin-top:16px; }
-@media (max-width:800px) {
-    .game-container { flex-direction:column; align-items:center; }
-    .sidebar { max-width:100%; width:100%; }
+.unit-btn:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.15);}
+.unit-btn.selected{background:rgba(255,94,122,0.15);border-color:var(--accent);}
+.unit-btn.disabled{opacity:.4;cursor:not-allowed;}
+.unit-icon{font-size:1.8em;width:36px;text-align:center;}
+.unit-info{flex:1;}
+.unit-info .name{font-weight:700;font-size:.85em;}
+.unit-info .desc{font-size:.7em;color:var(--text-dim);}
+.unit-cost{font-weight:700;color:var(--gold);font-size:.85em;}
+
+.btn{
+  padding:10px 16px;border:none;border-radius:8px;cursor:pointer;
+  font-size:.85em;font-weight:700;transition:all .2s;width:100%;
+  font-family:inherit;letter-spacing:.5px;
+}
+.btn:hover{transform:translateY(-1px);}
+.btn-start{background:linear-gradient(135deg,var(--accent),#7b5eff);color:#fff;box-shadow:0 4px 16px rgba(255,94,122,.3);}
+.btn-reset{background:rgba(255,255,255,.06);color:var(--text);}
+
+.wave-indicator{
+  text-align:center;padding:8px;border-radius:8px;
+  background:rgba(255,184,48,.1);color:var(--gold);
+  font-weight:700;font-size:.9em;
+}
+
+.log-area{
+  background:rgba(0,0,0,.3);border-radius:8px;padding:8px;
+  max-height:140px;overflow-y:auto;font-size:.7em;line-height:1.6;
+}
+.log-entry{padding:2px 0;border-bottom:1px solid rgba(255,255,255,.03);}
+.log-kill{color:var(--accent);}
+.log-spawn{color:var(--blue);}
+.log-wave{color:var(--gold);}
+
+.modal-overlay{
+  display:none;position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,.75);z-index:100;
+  justify-content:center;align-items:center;
+}
+.modal-overlay.active{display:flex;}
+.modal{
+  background:var(--panel);border-radius:16px;padding:32px;
+  text-align:center;max-width:380px;border:1px solid rgba(255,255,255,.1);
+}
+.modal .icon{font-size:3em;margin-bottom:8px;}
+.modal h2{font-size:1.4em;margin-bottom:8px;}
+.modal p{color:var(--text-dim);margin-bottom:16px;}
+.modal .btns{display:flex;gap:8px;justify-content:center;}
+
+.hint{
+  text-align:center;color:var(--text-dim);font-size:.72em;
+  padding:4px;margin-top:4px;
+}
+
+@media(max-width:800px){
+  .game-wrap{flex-direction:column;align-items:center;}
+  .panel{max-width:100%;width:100%;}
 }
 </style>
 </head>
 <body>
-<div class="game-container">
-    <div class="board-wrapper">
-        <div class="board-title">🛡️ 铁幕 · 现代战争棋</div>
-        <canvas id="board"></canvas>
+<div class="game-wrap">
+  <div>
+    <canvas id="board"></canvas>
+    <div class="hint">💡 点击空地 → 选兵种 → 部署 | 右键取消</div>
+  </div>
+  <div class="panel">
+    <h2>🛡️ 防线指挥官</h2>
+    <div class="wave-indicator" id="waveInfo">准备就绪</div>
+    <div class="stat-row"><span class="stat-label">💰 资源</span><span class="stat-val gold" id="goldDisplay">200</span></div>
+    <div class="stat-row"><span class="stat-label">💀 击杀</span><span class="stat-val kills" id="killsDisplay">0</span></div>
+    <div class="stat-row"><span class="stat-label">🛡️ 指挥部</span><span class="stat-val" id="hpDisplay" style="color:#4dc9f6">❤️❤️❤️❤️❤️</span></div>
+
+    <div class="unit-shop" id="unitShop">
+      <div class="unit-btn" data-unit="infantry">
+        <span class="unit-icon">🔫</span><span class="unit-info"><div class="name">步兵小队</div><div class="desc">基础战斗单位</div></span><span class="unit-cost">💰50</span>
+      </div>
+      <div class="unit-btn" data-unit="artillery">
+        <span class="unit-icon">💥</span><span class="unit-info"><div class="name">火炮阵地</div><div class="desc">远程范围伤害</div></span><span class="unit-cost">💰120</span>
+      </div>
+      <div class="unit-btn" data-unit="tank">
+        <span class="unit-icon">🫏</span><span class="unit-info"><div class="name">主战坦克</div><div class="desc">前排肉盾阻挡</div></span><span class="unit-cost">💰100</span>
+      </div>
+      <div class="unit-btn" data-unit="turret">
+        <span class="unit-icon">🎯</span><span class="unit-info"><div class="name">自动炮塔</div><div class="desc">自动攻击敌人</div></span><span class="unit-cost">💰150</span>
+      </div>
     </div>
-    <div class="sidebar">
-        <div class="turn-indicator turn-blue" id="turnIndicator">🔵 蓝方行动中</div>
-        <div class="info-section">
-            <h3>📋 选中单位</h3>
-            <div class="content" id="selectedInfo">点击棋盘选择一个单位</div>
-        </div>
-        <div class="info-section">
-            <h3>⚔️ 兵种图鉴</h3>
-            <div class="piece-legend" id="legend"></div>
-        </div>
-        <div class="btn btn-warn" onclick="game.undo()" style="width:100%">↩ 悔棋</div>
-        <div class="btn btn-secondary" onclick="game.reset()" style="width:100%">🔄 重新开始</div>
-        <div class="game-log" id="gameLog">
-            <div class="log-entry log-info">对局开始 — 蓝方先手</div>
-        </div>
+
+    <div class="btn btn-start" id="btnStart" onclick="game.startWave()">⚔️ 开始第一波</div>
+    <div class="btn btn-reset" onclick="game.reset()">🔄 重新开始</div>
+
+    <div class="log-area" id="logArea">
+      <div class="log-entry" style="color:var(--text-dim)">点击空地部署部队，抵御敌军！</div>
     </div>
+  </div>
 </div>
+
 <div class="modal-overlay" id="winModal">
-    <div class="modal">
-        <div class="winner-icon" id="winnerIcon"></div>
-        <h2 id="winnerText"></h2>
-        <p style="color:var(--text-dim)" id="winnerDetail"></p>
-        <div class="btns">
-            <div class="btn btn-primary" onclick="game.reset()">🔄 再来一局</div>
-            <div class="btn btn-secondary" onclick="document.getElementById('winModal').classList.remove('active')">关闭</div>
-        </div>
+  <div class="modal">
+    <div class="icon" id="winIcon"></div>
+    <h2 id="winTitle"></h2>
+    <p id="winDetail"></p>
+    <div class="btns">
+      <div class="btn btn-start" onclick="game.reset()">🔄 再来一局</div>
+      <div class="btn btn-reset" onclick="document.getElementById('winModal').classList.remove('active')">关闭</div>
     </div>
+  </div>
 </div>
+
 <script>
-const BOARD_SIZE=9,CELL=56,PADDING=28,PIECE_R=22;
-const PIECES={
-    command:{name:'指挥中心',icon:'🏰',atk:0,def:3,range:0,move:1,desc:'核心，被消灭即战败'},
-    tank:{name:'主战坦克',icon:'🫏',atk:5,def:4,range:1,move:3,desc:'直线猛攻，装甲厚重'},
-    helicopter:{name:'武装直升机',icon:'🚁',atk:4,def:2,range:1,move:4,desc:'跃障斜击，空中突袭'},
-    artillery:{name:'自行火炮',icon:'💥',atk:6,def:1,range:3,move:2,desc:'远程打击，需步兵引导'},
-    sam:{name:'防空导弹',icon:'🎯',atk:3,def:2,range:2,move:2,desc:'斜线拦截，克直升机'},
-    guard:{name:'近卫部队',icon:'🛡️',atk:2,def:4,range:1,move:2,desc:'护卫指挥，防御强化'},
-    infantry:{name:'步兵小队',icon:'🎖️',atk:2,def:2,range:1,move:2,desc:'渗透隐真，占通信节点'},
-    scout:{name:'侦察兵',icon:'🔭',atk:1,def:1,range:1,move:5,desc:'高速侦察，引导炮火'},
+// ==================== 游戏引擎 ====================
+const COLS=12, ROWS=16, CELL=40, PAD=20;
+const UNIT_DEFS={
+  infantry:{name:'步兵',icon:'🔫',cost:50,hp:80,atk:12,range:1.5,speed:0,color:'#4dc9f6',atkSpd:40,desc:'基础战力'},
+  artillery:{name:'火炮',icon:'💥',cost:120,hp:60,atk:35,range:4,speed:0,color:'#ffb830',atkSpd:70,splash:1.5,desc:'远程AOE'},
+  tank:{name:'坦克',icon:'🫏',cost:100,hp:200,atk:18,range:1.2,speed:0,color:'#7b5eff',atkSpd:50,block:true,desc:'肉盾阻挡'},
+  turret:{name:'炮塔',icon:'🎯',cost:150,hp:100,atk:22,range:3,speed:0,color:'#ff5e7a',atkSpd:25,desc:'自动速射'},
 };
+const ENEMY_DEFS={
+  soldier:{name:'敌步兵',icon:'👤',hp:40,atk:8,speed:0.8,reward:15,color:'#ff6666'},
+  armored:{name:'装甲兵',icon:'🦾',hp:100,atk:15,speed:0.5,reward:30,color:'#cc4444'},
+  fast:{name:'突击兵',icon:'🏃',hp:25,atk:5,speed:1.5,reward:20,color:'#ff8844'},
+  boss:{name:'重型机甲',icon:'🤖',hp:400,atk:25,speed:0.3,reward:100,color:'#ff2244'},
+};
+
 class Game{
-    constructor(){
-        this.canvas=document.getElementById('board');
-        this.ctx=this.canvas.getContext('2d');
-        this.canvas.width=BOARD_SIZE*CELL+PADDING*2;
-        this.canvas.height=BOARD_SIZE*CELL+PADDING*2;
-        this.canvas.addEventListener('click',e=>this.handleClick(e));
-        this.canvas.addEventListener('mousemove',e=>this.handleHover(e));
-        this.reset(); this.draw();
+  constructor(){
+    this.canvas=document.getElementById('board');
+    this.ctx=this.canvas.getContext('2d');
+    this.canvas.width=COLS*CELL+PAD*2;
+    this.canvas.height=ROWS*CELL+PAD*2;
+    this.canvas.addEventListener('click',e=>this.onClick(e));
+    this.canvas.addEventListener('contextmenu',e=>{e.preventDefault();this.selectedUnit=null;this.draw();});
+    this.selectedUnit=null;
+    this.reset();
+  }
+
+  reset(){
+    this.units=[]; this.enemies=[]; this.bullets=[]; this.particles=[];
+    this.gold=200; this.kills=0; this.wave=0; this.hp=5;
+    this.waveActive=false; this.enemiesToSpawn=[]; this.spawnTimer=0;
+    this.selectedUnit=null; this.logs=[];
+    this.gameOver=false; this.won=false;
+    this.updateUI(); this.draw();
+    document.getElementById('winModal').classList.remove('active');
+    document.getElementById('btnStart').textContent='⚔️ 开始第一波';
+    document.getElementById('btnStart').style.opacity='1';
+    this.addLog('系统','点击空地部署部队，部署完成后点击"开始第一波"');
+  }
+
+  // 网格坐标转换
+  toGrid(x,y){return{col:Math.floor((x-PAD)/CELL),row:Math.floor((y-PAD)/CELL)};}
+  toScreen(col,row){return{x:PAD+col*CELL+CELL/2,y:PAD+row*CELL+CELL/2};}
+  isValid(col,row){return col>=0&&col<COLS&&row>=0&&row<ROWS;}
+  isDeployZone(row){return row>=ROWS-5;} // 玩家只能在下5行部署
+
+  onClick(e){
+    if(this.gameOver)return;
+    const rect=this.canvas.getBoundingClientRect();
+    const{x,y}=this.toGrid(e.clientX-rect.left,e.clientY-rect.top);
+    if(!this.isValid(x,y))return;
+
+    // 如果选中了兵种，尝试部署
+    if(this.selectedUnit){
+      if(this.deployUnit(x,y,this.selectedUnit)){
+        this.selectedUnit=null;
+      }
+      this.draw();
+      return;
     }
-    reset(){
-        this.board=Array.from({length:BOARD_SIZE},()=>Array(BOARD_SIZE).fill(null));
-        this.turn='blue'; this.selected=null; this.moves=[]; this.history=[]; this.logs=[];
-        this.commNodes=this.initCommNodes(); this.gameOver=false; this.winner=null; this.hoverCell=null;
-        this.initPieces(); this.updateUI(); this.draw();
-        this.addLog('info','对局开始 — 蓝方先手');
-        document.getElementById('winModal').classList.remove('active');
+    // 否则选中该位置的己方单位查看信息
+    const unit=this.units.find(u=>u.col===x&&u.row===y);
+    if(unit){
+      this.addLog('系统',`${unit.icon} ${unit.name} | HP:${Math.ceil(unit.hp)} | ATK:${unit.atk} | 射程:${unit.range}`);
     }
-    initCommNodes(){
-        return [{r:2,c:4},{r:4,c:2},{r:4,c:6},{r:6,c:4},{r:1,c:1},{r:1,c:7},{r:7,c:1},{r:7,c:7}];
+    this.draw();
+  }
+
+  deployUnit(col,row,type){
+    if(!this.isDeployZone(row)){this.addLog('系统','只能部署在下方区域（蓝色区域）');return false;}
+    if(this.units.find(u=>u.col===col&&u.row===row)){this.addLog('系统','此位置已被占用');return false;}
+    const def=UNIT_DEFS[type];
+    if(this.gold<def.cost){this.addLog('系统','资源不足！');return false;}
+    this.gold-=def.cost;
+    this.units.push({type,col,row,...def,hp:def.hp,atkTimer:0});
+    this.addLog('部署',`部署了 ${def.icon} ${def.name} 在 [${col},${row}]`);
+    this.updateUI();this.draw();
+    return true;
+  }
+
+  selectUnit(type){
+    if(this.gameOver)return;
+    const def=UNIT_DEFS[type];
+    if(this.gold<def.cost)return;
+    this.selectedUnit=this.selectedUnit===type?null:type;
+    document.querySelectorAll('.unit-btn').forEach(b=>b.classList.remove('selected'));
+    if(this.selectedUnit){
+      document.querySelector(`[data-unit="${type}"]`).classList.add('selected');
     }
-    initPieces(){
-        const br=['scout','helicopter','tank','artillery','command','artillery','tank','helicopter','scout'];
-        const bB=0,rB=BOARD_SIZE-1,bG=1,rG=BOARD_SIZE-2,bI=2,rI=BOARD_SIZE-3;
-        for(let c=0;c<BOARD_SIZE;c++){
-            this.placePiece(bB,c,br[c],'blue'); this.placePiece(rB,c,br[c],'red');
-            if(br[c]==='command'){
-                if(c>0){this.placePiece(bG,c-1,'guard','blue');this.placePiece(rG,c-1,'guard','red');}
-                if(c<BOARD_SIZE-1){this.placePiece(bG,c+1,'guard','blue');this.placePiece(rG,c+1,'guard','red');}
-                this.placePiece(bG,c,'guard','blue'); this.placePiece(rG,c,'guard','red');
+    this.draw();
+  }
+
+  startWave(){
+    if(this.waveActive||this.gameOver)return;
+    this.wave++;
+    this.waveActive=true;
+    this.selectedUnit=null;
+    document.querySelectorAll('.unit-btn').forEach(b=>b.classList.remove('selected'));
+
+    // 生成波次敌人
+    this.enemiesToSpawn=[];
+    const enemyTypes=['soldier','soldier','armored','fast'];
+    const count=4+this.wave*2;
+    for(let i=0;i<count;i++){
+      const type=i===count-1&&this.wave%3===0?'boss':enemyTypes[Math.floor(Math.random()*enemyTypes.length)];
+      this.enemiesToSpawn.push({type,delay:i*18});
+    }
+    this.spawnTimer=0;
+
+    const totalEnemies=this.enemiesToSpawn.length;
+    const hasBoss=this.enemiesToSpawn.some(e=>e.type==='boss');
+    this.addLog('波次',`⚡ 第 ${this.wave} 波来袭！${totalEnemies} 个敌人${hasBoss?'（含BOSS）':''}`);
+    document.getElementById('btnStart').textContent=`第 ${this.wave} 波进行中...`;
+    document.getElementById('btnStart').style.opacity='0.5';
+    this.updateUI();
+  }
+
+  update(){
+    if(this.gameOver||!this.waveActive)return;
+    this.spawnTimer++;
+
+    // 生成敌人
+    for(let i=this.enemiesToSpawn.length-1;i>=0;i--){
+      if(this.spawnTimer>=this.enemiesToSpawn[i].delay){
+        const def=ENEMY_DEFS[this.enemiesToSpawn[i].type];
+        const col=Math.floor(Math.random()*(COLS-2))+1;
+        this.enemies.push({
+          type:this.enemiesToSpawn[i].type,col,row:-1,y:-CELL,
+          ...def,hp:def.hp*(1+this.wave*0.1),atk:def.atk*(1+this.wave*0.08),
+          reward:def.reward+this.wave*2
+        });
+        this.enemiesToSpawn.splice(i,1);
+      }
+    }
+
+    // 更新敌人移动
+    for(let e of this.enemies){
+      // 寻找最近的己方单位
+      let target=null,minDist=Infinity;
+      for(let u of this.units){
+        const dx=u.col-e.col,dy=u.row-e.y/CELL;
+        const dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<minDist){minDist=dist;target=u;}
+      }
+      if(target&&minDist<1.5){
+        // 攻击己方单位
+        e.atkTimer=(e.atkTimer||0)+1;
+        if(e.atkTimer>=60){
+          e.atkTimer=0;
+          target.hp-=e.atk;
+          this.spawnParticles(this.toScreen(target.col,target.row),'hit');
+          if(target.hp<=0){
+            this.units=this.units.filter(u=>u!==target);
+            this.spawnParticles(this.toScreen(target.col,target.row),'explode');
+          }
+        }
+      }else{
+        // 向下移动
+        e.y+=e.speed;
+        e.row=Math.round(e.y/CELL);
+        // 到达底部 → 攻击指挥部
+        if(e.y>=ROWS*CELL){
+          this.hp--;
+          this.spawnParticles({x:PAD+COLS*CELL/2,y:PAD+ROWS*CELL-10},'explode');
+          this.enemies=this.enemies.filter(en=>en!==e);
+          this.addLog('受损',`⚠️ 敌人突破了防线！指挥部 HP-1`);
+          if(this.hp<=0){
+            this.endGame(false);
+            return;
+          }
+        }
+      }
+    }
+
+    // 更新己方单位攻击
+    for(let u of this.units){
+      u.atkTimer++;
+      if(u.atkTimer>=u.atkSpd){
+        // 寻找射程内的敌人
+        let bestTarget=null,bestDist=Infinity;
+        for(let e of this.enemies){
+          const dx=u.col-e.col,dy=u.row-e.y/CELL;
+          const dist=Math.sqrt(dx*dx+dy*dy);
+          if(dist<=u.range&&dist<bestDist){
+            bestDist=dist;bestTarget=e;
+          }
+        }
+        if(bestTarget){
+          u.atkTimer=0;
+          bestTarget.hp-=u.atk;
+          // 子弹特效
+          this.bullets.push({
+            sx:this.toScreen(u.col,u.row).x,sy:this.toScreen(u.col,u.row).y,
+            ex:this.toScreen(bestTarget.col,Math.round(bestTarget.y/CELL)).x,
+            ey:this.toScreen(bestTarget.col,Math.round(bestTarget.y/CELL)).y,
+            life:8,color:u.color
+          });
+          // 溅射伤害
+          if(u.splash){
+            for(let e of this.enemies){
+              if(e===bestTarget)continue;
+              const dx2=bestTarget.col-e.col,dy2=bestTarget.y/CELL-e.y/CELL;
+              if(Math.sqrt(dx2*dx2+dy2*dy2)<=u.splash)e.hp-=u.atk*0.4;
             }
-            if(c%2===0){this.placePiece(bI,c,'infantry','blue');this.placePiece(rI,c,'infantry','red');}
-            if(c===2||c===6){this.placePiece(bI+1,c,'sam','blue');this.placePiece(rI-1,c,'sam','red');}
+          }
+          if(bestTarget.hp<=0){
+            this.gold+=bestTarget.reward;
+            this.kills++;
+            this.spawnParticles(this.toScreen(bestTarget.col,Math.round(bestTarget.y/CELL)),'kill');
+            this.enemies=this.enemies.filter(e=>e!==bestTarget);
+          }
         }
+      }
     }
-    placePiece(r,c,type,team){this.board[r][c]={type,team,hidden:false,moved:false};}
-    getCommControl(team){let count=0;for(let n of this.commNodes){const p=this.board[n.r]?.[n.c];if(p&&p.team===team&&p.type==='infantry')count++;}return count;}
-    hasAdjacentFriend(r,c,team){for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){if(dr===0&&dc===0)continue;const p=this.board[r+dr]?.[c+dc];if(p&&p.team===team)return true;}return false;}
-    findCommand(team){for(let r=0;r<BOARD_SIZE;r++)for(let c=0;c<BOARD_SIZE;c++){const p=this.board[r][c];if(p&&p.type==='command'&&p.team===team)return{r,c};}return null;}
-    wouldBeInCheck(fr,fc,tr,tc,team){const saved=this.board[tr][tc],moving=this.board[fr][fc];this.board[tr][tc]=moving;this.board[fr][fc]=null;const ic=this.isInCheck(team);this.board[fr][fc]=moving;this.board[tr][tc]=saved;return ic;}
-    isInCheck(team){const cmd=this.findCommand(team);if(!cmd)return true;const enemy=team==='blue'?'red':'blue';for(let r=0;r<BOARD_SIZE;r++)for(let c=0;c<BOARD_SIZE;c++){const p=this.board[r][c];if(p&&p.team===enemy){const moves=this.getRawMoves(r,c);if(moves.some(m=>m.r===cmd.r&&m.c===cmd.c))return true;}}return false;}
-    getRawMoves(r,c){
-        const piece=this.board[r][c];if(!piece)return[];const moves=[];
-        const am=(tr,tc)=>{if(tr<0||tr>=BOARD_SIZE||tc<0||tc>=BOARD_SIZE)return;const t=this.board[tr][tc];if(t&&t.team===piece.team)return;moves.push({r:tr,c:tc});};
-        const{type,team}=piece;
-        switch(type){
-            case'command':for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++)if(dr!==0||dc!==0)am(r+dr,c+dc);break;
-            case'tank':for(let[dr,dc]of[[0,1],[0,-1],[1,0],[-1,0]]){for(let i=1;i<=piece.move+1;i++){const tr=r+dr*i,tc=c+dc*i;if(tr<0||tr>=BOARD_SIZE||tc<0||tc>=BOARD_SIZE)break;const t=this.board[tr][tc];if(t&&t.team===team)break;am(tr,tc);if(t)break;}}break;
-            case'helicopter':for(let[dr,dc]of[[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]])am(r+dr,c+dc);break;
-            case'artillery':{const hs=this.hasAdjacentFriend(r,c,team);const rg=hs?piece.range:1;for(let[dr,dc]of[[0,1],[0,-1],[1,0],[-1,0]]){for(let i=1;i<=rg;i++){const tr=r+dr*i,tc=c+dc*i;if(tr<0||tr>=BOARD_SIZE||tc<0||tc>=BOARD_SIZE)break;const t=this.board[tr][tc];if(t&&t.team===team)break;am(tr,tc);if(t)break;}}}break;
-            case'sam':for(let[dr,dc]of[[-1,-1],[-1,1],[1,-1],[1,1]]){for(let i=1;i<=piece.move+1;i++){const tr=r+dr*i,tc=c+dc*i;if(tr<0||tr>=BOARD_SIZE||tc<0||tc>=BOARD_SIZE)break;const t=this.board[tr][tc];if(t&&t.team===team)break;am(tr,tc);if(t)break;}}break;
-            case'guard':for(let dr=-2;dr<=2;dr++)for(let dc=-2;dc<=2;dc++){if(dr===0&&dc===0)continue;if(Math.abs(dr)+Math.abs(dc)<=2)am(r+dr,c+dc);}break;
-            case'infantry':{const fwd=team==='blue'?1:-1;am(r+fwd,c);am(r+fwd,c-1);am(r+fwd,c+1);am(r,c-1);am(r,c+1);if(!piece.moved)am(r+fwd*2,c);}break;
-            case'scout':for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){if(dr===0&&dc===0)continue;for(let m=1;m<=piece.move;m++){const tr=r+dr*m,tc=c+dc*m;if(tr<0||tr>=BOARD_SIZE||tc<0||tc>=BOARD_SIZE)break;const t=this.board[tr][tc];if(t&&t.team===team)break;am(tr,tc);if(t)break;}}break;
-        }
-        return moves;
+
+    // 更新子弹
+    this.bullets=this.bullets.filter(b=>{b.life--;return b.life>0;});
+
+    // 更新粒子
+    this.particles=this.particles.filter(p=>{p.life--;p.x+=p.vx;p.y+=p.vy;return p.life>0;});
+
+    // 检查波次是否结束
+    if(this.enemiesToSpawn.length===0&&this.enemies.length===0){
+      this.waveActive=false;
+      this.gold+=80+this.wave*20;
+      this.addLog('波次',`✅ 第 ${this.wave} 波击退！奖励 +${80+this.wave*20} 资源`);
+      document.getElementById('btnStart').textContent=`⚔️ 开始第 ${this.wave+1} 波`;
+      document.getElementById('btnStart').style.opacity='1';
+      if(this.wave>=15){
+        this.endGame(true);
+        return;
+      }
     }
-    getPieceMoves(r,c){
-        const piece=this.board[r][c];if(!piece)return[];const moves=[];
-        const{type,team}=piece;
-        const addMove=(tr,tc,special=null)=>{
-            if(tr<0||tr>=BOARD_SIZE||tc<0||tc>=BOARD_SIZE)return;
-            const target=this.board[tr][tc];if(target&&target.team===team)return;
-            if(this.wouldBeInCheck(r,c,tr,tc,team))return;
-            moves.push({r:tr,c:tc,attack:!!target,special});
-        };
-        switch(type){
-            case'command':for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++)if(dr!==0||dc!==0)addMove(r+dr,c+dc);break;
-            case'tank':for(let[dr,dc]of[[0,1],[0,-1],[1,0],[-1,0]]){let blocked=false;for(let i=1;i<=piece.move+1;i++){const tr=r+dr*i,tc=c+dc*i;if(tr<0||tr>=BOARD_SIZE||tc<0||tc>=BOARD_SIZE)break;const t=this.board[tr][tc];if(t&&t.team===team)break;if(blocked)break;addMove(tr,tc);if(t&&t.team!==team)blocked=true;}}break;
-            case'helicopter':for(let[dr,dc]of[[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]])addMove(r+dr,c+dc);break;
-            case'artillery':{const hs=this.hasAdjacentFriend(r,c,team);const range=hs?piece.range:1;for(let[dr,dc]of[[0,1],[0,-1],[1,0],[-1,0]]){for(let i=1;i<=range;i++){const tr=r+dr*i,tc=c+dc*i;if(tr<0||tr>=BOARD_SIZE||tc<0||tc>=BOARD_SIZE)break;const t=this.board[tr][tc];if(t&&t.team===team)break;addMove(tr,tc,hs&&i>1?'间接火力':null);if(t&&t.team!==team)break;}}}break;
-            case'sam':for(let[dr,dc]of[[-1,-1],[-1,1],[1,-1],[1,1]]){for(let i=1;i<=piece.move+1;i++){const tr=r+dr*i,tc=c+dc*i;if(tr<0||tr>=BOARD_SIZE||tc<0||tc>=BOARD_SIZE)break;const t=this.board[tr][tc];if(t&&t.team===team)break;addMove(tr,tc);if(t&&t.team!==team)break;}}break;
-            case'guard':for(let dr=-2;dr<=2;dr++)for(let dc=-2;dc<=2;dc++){if(dr===0&&dc===0)continue;if(Math.abs(dr)+Math.abs(dc)<=2)addMove(r+dr,c+dc);}break;
-            case'infantry':{const fwd=team==='blue'?1:-1;addMove(r+fwd,c);addMove(r+fwd,c-1);addMove(r+fwd,c+1);addMove(r,c-1);addMove(r,c+1);if(!piece.moved)addMove(r+fwd*2,c);}break;
-            case'scout':for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){if(dr===0&&dc===0)continue;for(let m=1;m<=piece.move;m++){const tr=r+dr*m,tc=c+dc*m;if(tr<0||tr>=BOARD_SIZE||tc<0||tc>=BOARD_SIZE)break;const t=this.board[tr][tc];if(t&&t.team===team)break;addMove(tr,tc);if(t&&t.team!==team)break;}}break;
-        }
-        return moves;
+
+    this.updateUI();
+    this.draw();
+  }
+
+  spawnParticles(pos,type){
+    const count=type==='explode'?20:type==='kill'?12:6;
+    const colors=type==='explode'?['#ff5e7a','#ffb830','#fff']:
+                 type==='kill'?['#ffb830','#ff5e7a','#fff']:['#fff','#4dc9f6'];
+    for(let i=0;i<count;i++){
+      this.particles.push({
+        x:pos.x,y:pos.y,
+        vx:(Math.random()-0.5)*4,vy:(Math.random()-0.5)*4,
+        life:15+Math.random()*15,
+        color:colors[Math.floor(Math.random()*colors.length)]
+      });
     }
-    hasLegalMoves(team){for(let r=0;r<BOARD_SIZE;r++)for(let c=0;c<BOARD_SIZE;c++){const p=this.board[r][c];if(p&&p.team===team){if(this.getPieceMoves(r,c).length>0)return true;}}return false;}
-    makeMove(fr,fc,tr,tc){
-        const piece=this.board[fr][fc],target=this.board[tr][tc];
-        this.history.push({fr,fc,tr,tc,piece:{...piece},target:target?{...target}:null});
-        const attackType=target?'attack':'move';
-        this.board[tr][tc]={...piece,moved:true};this.board[fr][fc]=null;
-        const pInfo=PIECES[piece.type],fromName=`${colLabel(fc)}${rowLabel(fr)}`,toName=`${colLabel(tc)}${rowLabel(tr)}`;
-        const teamName=piece.team==='blue'?'蓝方':'红方',teamClass=piece.team==='blue'?'log-blue':'log-red';
-        if(attackType==='attack'){
-            const tInfo=PIECES[target.type];
-            this.addLog(teamClass,`${teamName} ${pInfo.icon}${pInfo.name} 在 ${toName} 消灭了 ${tInfo.icon}${tInfo.name}`);
-            if(target.type==='command'){this.gameOver=true;this.winner=piece.team;this.addLog('log-kill',`⚡ ${teamName} 摧毁了敌方指挥中心！`);}
-        }else{this.addLog(teamClass,`${teamName} ${pInfo.icon}${pInfo.name} ${fromName} → ${toName}`);}
-        this.turn=this.turn==='blue'?'red':'blue';this.selected=null;this.moves=[];
-        const enemyTeam=this.turn;
-        if(!this.gameOver){
-            if(this.isInCheck(enemyTeam)){
-                if(!this.hasLegalMoves(enemyTeam)){this.gameOver=true;this.winner=this.turn==='blue'?'red':'blue';this.addLog('log-kill',`🏁 绝杀！${this.winner==='blue'?'蓝方':'红方'}获胜！`);}
-                else{this.addLog('log-info',`⚠️ ${enemyTeam==='blue'?'蓝方':'红方'}指挥中心受到威胁！（将军）`);}
-            }else if(!this.hasLegalMoves(enemyTeam)){this.gameOver=true;this.winner='draw';this.addLog('log-info','🤝 困毙！平局！');}
-        }
-        this.updateUI();this.draw();
-        if(this.gameOver)setTimeout(()=>this.showWin(),400);
+  }
+
+  endGame(won){
+    this.gameOver=true;this.won=won;this.waveActive=false;
+    const modal=document.getElementById('winModal');
+    document.getElementById('winIcon').textContent=won?'🏆':'💀';
+    document.getElementById('winTitle').textContent=won?'防线守住了！':'防线失守';
+    document.getElementById('winDetail').textContent=won?
+      `你成功抵御了 ${this.wave} 波敌军进攻！击杀 ${this.kills} 个敌人`:
+      `指挥部被摧毁...坚持了 ${this.wave} 波，击杀 ${this.kills} 个敌人`;
+    modal.classList.add('active');
+    document.getElementById('btnStart').textContent='游戏结束';
+    document.getElementById('btnStart').style.opacity='0.5';
+  }
+
+  addLog(type,msg){
+    this.logs.push({type,msg});
+    const el=document.getElementById('logArea');
+    const clsMap={部署:'log-spawn',波次:'log-wave',受损:'log-kill',系统:''};
+    el.innerHTML=this.logs.slice(-15).map(l=>
+      `<div class="log-entry ${clsMap[l.type]||''}">[${l.type}] ${l.msg}</div>`
+    ).join('');
+    el.scrollTop=el.scrollHeight;
+  }
+
+  updateUI(){
+    document.getElementById('goldDisplay').textContent=Math.floor(this.gold);
+    document.getElementById('killsDisplay').textContent=this.kills;
+    const hearts='❤️'.repeat(Math.max(0,this.hp))+'🖤'.repeat(Math.max(0,5-this.hp));
+    document.getElementById('hpDisplay').textContent=hearts;
+    document.getElementById('waveInfo').textContent=this.waveActive?`⚡ 第 ${this.wave} 波交战中`:`📡 第 ${this.wave} 波 — 待命`;
+
+    // 更新兵种按钮状态
+    document.querySelectorAll('.unit-btn').forEach(b=>{
+      const type=b.dataset.unit;
+      b.classList.toggle('disabled',this.gold<UNIT_DEFS[type].cost);
+    });
+  }
+
+  // ==================== 绘制 ====================
+  draw(){
+    const ctx=this.ctx,w=this.canvas.width,h=this.canvas.height;
+    ctx.fillStyle='#0a0a14';ctx.fillRect(0,0,w,h);
+
+    // 网格
+    for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+      const x=PAD+c*CELL,y=PAD+r*CELL;
+      ctx.fillStyle=(r+c)%2===0?'#111122':'#0d0d1a';
+      ctx.fillRect(x,y,CELL,CELL);
+      ctx.strokeStyle='rgba(255,255,255,0.03)';ctx.strokeRect(x,y,CELL,CELL);
     }
-    addLog(cls,msg){this.logs.push({cls,msg});const el=document.getElementById('gameLog');el.innerHTML=this.logs.slice(-20).map(l=>`<div class="log-entry ${l.cls}">${l.msg}</div>`).join('');el.scrollTop=el.scrollHeight;}
-    undo(){if(this.gameOver||this.history.length===0)return;const last=this.history.pop();this.board[last.fr][last.fc]=last.piece;this.board[last.tr][last.tc]=last.target;this.turn=last.piece.team;this.selected=null;this.moves=[];this.addLog('log-info',`↩ ${last.piece.team==='blue'?'蓝方':'红方'}悔棋`);this.updateUI();this.draw();}
-    showWin(){const modal=document.getElementById('winModal');modal.classList.add('active');const icon=document.getElementById('winnerIcon'),text=document.getElementById('winnerText'),detail=document.getElementById('winnerDetail');if(this.winner==='draw'){icon.textContent='🤝';text.textContent='平局！';detail.textContent='双方势均力敌，握手言和';}else{icon.textContent=this.winner==='blue'?'🔵':'🔴';text.textContent=`${this.winner==='blue'?'蓝方':'红方'}获胜！`;detail.textContent='指挥中心已被摧毁，战争结束';}}
-    handleClick(e){
-        if(this.gameOver)return;
-        const rect=this.canvas.getBoundingClientRect(),x=e.clientX-rect.left,y=e.clientY-rect.top;
-        const c=Math.floor((x-PADDING)/CELL),r=Math.floor((y-PADDING)/CELL);
-        if(r<0||r>=BOARD_SIZE||c<0||c>=BOARD_SIZE)return;
-        const mt=this.moves.find(m=>m.r===r&&m.c===c);
-        if(mt&&this.selected){this.makeMove(this.selected.r,this.selected.c,r,c);return;}
-        const piece=this.board[r][c];
-        if(piece&&piece.team===this.turn){this.selected={r,c};this.moves=this.getPieceMoves(r,c);}
-        else{this.selected=null;this.moves=[];}
-        this.updateUI();this.draw();
+
+    // 部署区域高亮
+    for(let r=ROWS-5;r<ROWS;r++)for(let c=0;c<COLS;c++){
+      const x=PAD+c*CELL,y=PAD+r*CELL;
+      ctx.fillStyle='rgba(77,201,246,0.04)';ctx.fillRect(x,y,CELL,CELL);
     }
-    handleHover(e){
-        const rect=this.canvas.getBoundingClientRect(),x=e.clientX-rect.left,y=e.clientY-rect.top;
-        const c=Math.floor((x-PADDING)/CELL),r=Math.floor((y-PADDING)/CELL);
-        if(r<0||r>=BOARD_SIZE||c<0||c>=BOARD_SIZE){if(this.hoverCell!==null){this.hoverCell=null;this.draw();}return;}
-        if(!this.hoverCell||this.hoverCell.r!==r||this.hoverCell.c!==c){this.hoverCell={r,c};this.draw();}
+    // 部署区标签
+    ctx.fillStyle='rgba(77,201,246,0.25)';ctx.font='bold 10px sans-serif';ctx.textAlign='center';
+    ctx.fillText('▼ 部署区域 ▼',PAD+COLS*CELL/2,PAD+(ROWS-5)*CELL-4);
+
+    // 指挥部
+    const hqX=PAD+COLS*CELL/2,hqY=PAD+ROWS*CELL-20;
+    ctx.fillStyle='rgba(255,94,122,0.2)';ctx.fillRect(hqX-30,hqY-14,60,28);
+    ctx.strokeStyle='rgba(255,94,122,0.5)';ctx.lineWidth=2;ctx.strokeRect(hqX-30,hqY-14,60,28);
+    ctx.fillStyle='#fff';ctx.font='14px sans-serif';
+    ctx.fillText('🏰 指挥部',hqX,hqY+6);
+
+    // 己方单位
+    for(let u of this.units){
+      const{x,y}=this.toScreen(u.col,u.row);
+      // 光晕
+      ctx.beginPath();ctx.arc(x,y,16,0,Math.PI*2);
+      ctx.fillStyle=u.color+'33';ctx.fill();
+      // 底座
+      ctx.beginPath();ctx.arc(x,y,13,0,Math.PI*2);
+      ctx.fillStyle=u.color+'55';ctx.fill();
+      ctx.strokeStyle=u.color;ctx.lineWidth=2;ctx.stroke();
+      // 图标
+      ctx.fillStyle='#fff';ctx.font='16px serif';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(u.icon,x,y);
+      // 血条
+      const hpPct=u.hp/u.hpMax||1;
+      ctx.fillStyle='rgba(0,0,0,0.6)';ctx.fillRect(x-12,y-20,24,4);
+      ctx.fillStyle=hpPct>0.5?'#4dc9f6':hpPct>0.25?'#ffb830':'#ff5e7a';
+      ctx.fillRect(x-12,y-20,24*hpPct,4);
     }
-    updateUI(){
-        const ind=document.getElementById('turnIndicator');
-        if(this.gameOver){ind.textContent=this.winner==='draw'?'🤝 平局':`${this.winner==='blue'?'🔵 蓝方获胜':'🔴 红方获胜'}`;ind.className='turn-indicator';}
-        else{ind.textContent=this.turn==='blue'?'🔵 蓝方行动中':'🔴 红方行动中';ind.className=`turn-indicator turn-${this.turn}`;}
-        const info=document.getElementById('selectedInfo');
-        if(this.selected){const p=this.board[this.selected.r][this.selected.c],pi=PIECES[p.type],sp=this.hasAdjacentFriend(this.selected.r,this.selected.c,p.team);info.innerHTML=`<b>${pi.icon} ${pi.name}</b> (${p.team==='blue'?'蓝方':'红方'})<br>攻击:${pi.atk} 防御:${pi.def} 射程:${pi.range} 机动:${pi.move}<br><small style="color:var(--text-dim)">${pi.desc}</small>${p.type==='artillery'&&sp?'<br><small style="color:var(--gold)">🔭 观察哨就绪 — 射程+2</small>':''}<br>${this.moves.length} 个可行走法`;}
-        else{info.innerHTML='点击棋盘选择一个单位';}
+
+    // 敌人
+    for(let e of this.enemies){
+      const{x,y}=this.toScreen(e.col,Math.round(e.y/CELL));
+      ctx.beginPath();ctx.arc(x,y,12,0,Math.PI*2);
+      ctx.fillStyle=e.color+'66';ctx.fill();
+      ctx.strokeStyle=e.color;ctx.lineWidth=2;ctx.stroke();
+      ctx.fillStyle='#fff';ctx.font='14px serif';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(e.icon,x,y);
+      // 血条
+      const eHpPct=e.hp/(ENEMY_DEFS[e.type].hp*(1+this.wave*0.1));
+      ctx.fillStyle='rgba(0,0,0,0.6)';ctx.fillRect(x-10,y-18,20,3);
+      ctx.fillStyle='#ff5e7a';ctx.fillRect(x-10,y-18,20*Math.max(0,eHpPct),3);
     }
-    draw(){
-        const ctx=this.ctx,w=this.canvas.width,h=this.canvas.height;
-        ctx.fillStyle='#1a1a2e';ctx.fillRect(0,0,w,h);
-        for(let r=0;r<BOARD_SIZE;r++)for(let c=0;c<BOARD_SIZE;c++){const x=PADDING+c*CELL,y=PADDING+r*CELL;ctx.fillStyle=(r+c)%2===0?'#2d2d44':'#252540';ctx.fillRect(x,y,CELL,CELL);ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.strokeRect(x,y,CELL,CELL);}
-        for(let node of this.commNodes){const x=PADDING+node.c*CELL+CELL/2,y=PADDING+node.r*CELL+CELL/2;ctx.beginPath();ctx.arc(x,y,7,0,Math.PI*2);ctx.fillStyle='rgba(240,165,0,0.3)';ctx.fill();ctx.strokeStyle='rgba(240,165,0,0.5)';ctx.stroke();const p=this.board[node.r]?.[node.c];if(p&&p.type==='infantry'){ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fillStyle=p.team==='blue'?'rgba(76,201,240,0.8)':'rgba(247,37,133,0.8)';ctx.fill();}}
-        ctx.fillStyle='#666';ctx.font='9px sans-serif';ctx.textAlign='center';for(let c=0;c<BOARD_SIZE;c++){ctx.fillText(colLabel(c),PADDING+c*CELL+CELL/2,PADDING-8);ctx.fillText(colLabel(c),PADDING+c*CELL+CELL/2,PADDING+BOARD_SIZE*CELL+14);}
-        ctx.textAlign='right';for(let r=0;r<BOARD_SIZE;r++)ctx.fillText(rowLabel(r),PADDING-5,PADDING+r*CELL+CELL/2+4);
-        ctx.textAlign='left';for(let r=0;r<BOARD_SIZE;r++)ctx.fillText(rowLabel(r),PADDING+BOARD_SIZE*CELL+5,PADDING+r*CELL+CELL/2+4);
-        if(this.selected){const sx=PADDING+this.selected.c*CELL,sy=PADDING+this.selected.r*CELL;ctx.fillStyle='rgba(240,165,0,0.35)';ctx.fillRect(sx,sy,CELL,CELL);ctx.strokeStyle='rgba(240,165,0,0.8)';ctx.lineWidth=2;ctx.strokeRect(sx+1,sy+1,CELL-2,CELL-2);ctx.lineWidth=1;}
-        if(this.hoverCell){const hx=PADDING+this.hoverCell.c*CELL,hy=PADDING+this.hoverCell.r*CELL;ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.strokeRect(hx+1,hy+1,CELL-2,CELL-2);}
-        for(let m of this.moves){const mx=PADDING+m.c*CELL+CELL/2,my=PADDING+m.r*CELL+CELL/2;if(m.attack){ctx.save();ctx.translate(mx,my);ctx.rotate(Math.PI/4);ctx.fillStyle='rgba(247,37,133,0.4)';ctx.fillRect(-10,-10,20,20);ctx.strokeStyle='rgba(247,37,133,0.7)';ctx.strokeRect(-10,-10,20,20);ctx.restore();}else{ctx.beginPath();ctx.arc(mx,my,7,0,Math.PI*2);ctx.fillStyle=m.special?'rgba(114,9,183,0.5)':'rgba(76,201,240,0.4)';ctx.fill();ctx.strokeStyle=m.special?'rgba(114,9,183,0.7)':'rgba(76,201,240,0.6)';ctx.stroke();}}
-        for(let r=0;r<BOARD_SIZE;r++)for(let c=0;c<BOARD_SIZE;c++){const piece=this.board[r][c];if(!piece)continue;this.drawPiece(ctx,PADDING+c*CELL+CELL/2,PADDING+r*CELL+CELL/2,piece);}
-        if(!this.gameOver){const ict=this.turn;if(this.isInCheck(ict)){const cmd=this.findCommand(ict);if(cmd){const cx=PADDING+cmd.c*CELL+CELL/2,cy=PADDING+cmd.r*CELL+CELL/2;ctx.beginPath();ctx.arc(cx,cy,PIECE_R+5,0,Math.PI*2);ctx.strokeStyle='#ff4444';ctx.lineWidth=2.5;ctx.setLineDash([3,3]);ctx.stroke();ctx.setLineDash([]);ctx.lineWidth=1;}}}
+
+    // 子弹
+    for(let b of this.bullets){
+      const t=1-b.life/8;
+      const bx=b.sx+(b.ex-b.sx)*t,by=b.sy+(b.ey-b.sy)*t;
+      ctx.beginPath();ctx.arc(bx,by,2.5,0,Math.PI*2);
+      ctx.fillStyle=b.color;ctx.fill();
     }
-    drawPiece(ctx,cx,cy,piece){
-        const isBlue=piece.team==='blue',mc=isBlue?'#4cc9f0':'#f72585',dc=isBlue?'#1a6b8a':'#8a0d3e',gc=isBlue?'rgba(76,201,240,0.3)':'rgba(247,37,133,0.3)';
-        const grad=ctx.createRadialGradient(cx,cy,PIECE_R-3,cx,cy,PIECE_R+3);grad.addColorStop(0,gc);grad.addColorStop(1,'transparent');
-        ctx.beginPath();ctx.arc(cx,cy,PIECE_R+3,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
-        ctx.beginPath();ctx.arc(cx,cy,PIECE_R,0,Math.PI*2);const bg=ctx.createLinearGradient(cx-PIECE_R,cy-PIECE_R,cx+PIECE_R,cy+PIECE_R);bg.addColorStop(0,mc);bg.addColorStop(1,dc);ctx.fillStyle=bg;ctx.fill();ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=1.5;ctx.stroke();
-        ctx.beginPath();ctx.arc(cx,cy,PIECE_R-4,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,0.1)';ctx.fill();
-        ctx.fillStyle='#fff';ctx.font=`${PIECE_R-2}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(PIECES[piece.type].icon,cx,cy);
-        const abbr={command:'CMD',tank:'TNK',helicopter:'HEL',artillery:'ART',sam:'SAM',guard:'GRD',infantry:'INF',scout:'SCT'};
-        ctx.fillStyle='rgba(255,255,255,0.6)';ctx.font='bold 7px sans-serif';ctx.fillText(abbr[piece.type],cx,cy+PIECE_R-7);
+
+    // 粒子
+    for(let p of this.particles){
+      ctx.beginPath();ctx.arc(p.x,p.y,1.5+p.life/20,0,Math.PI*2);
+      ctx.fillStyle=p.color+(Math.floor(p.life/20*255).toString(16).padStart(2,'0'));
+      ctx.fill();
     }
+
+    // 部署预览
+    if(this.selectedUnit){
+      const def=UNIT_DEFS[this.selectedUnit];
+      ctx.fillStyle='rgba(255,255,255,0.7)';ctx.font='12px sans-serif';ctx.textAlign='center';
+      ctx.fillText(`点击蓝色区域部署 ${def.icon} ${def.name} | 右键取消`,PAD+COLS*CELL/2,PAD+ROWS*CELL+12);
+    }
+  }
 }
-function colLabel(c){return String.fromCharCode(65+c);}
-function rowLabel(r){return(BOARD_SIZE-r).toString();}
+
+// ==================== 启动 ====================
 const game=new Game();
-document.getElementById('legend').innerHTML=Object.entries(PIECES).map(([k,p])=>`<div class="legend-item"><span class="legend-icon">${p.icon}</span><span><b>${p.name}</b><br><small style="color:var(--text-dim)">A${p.atk} D${p.def} R${p.range} M${p.move}</small></span></div>`).join('');
+
+// 兵种按钮
+document.querySelectorAll('.unit-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>game.selectUnit(btn.dataset.unit));
+});
+
+// 游戏循环
+setInterval(()=>game.update(),1000/60);
 </script>
 </body>
 </html>
