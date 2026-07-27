@@ -24,6 +24,7 @@
     <button class="nav-link">贪吃蛇</button>
     <button class="nav-link">2048</button>
     <button class="nav-link">飞机大战</button>
+    <button class="nav-link">铁幕</button>
   </nav>
 </header>
 
@@ -37,6 +38,7 @@
   <button class="nav-link">🐍 贪吃蛇大作战</button>
   <button class="nav-link">🔢 2048</button>
   <button class="nav-link">✈️ 飞机大战</button>
+  <button class="nav-link">🛡️ 铁幕</button>
 </aside>
 
 <!-- ==================== 首页（大厅） ==================== -->
@@ -45,7 +47,7 @@
   <!-- Hero -->
   <header class="hero">
     <h1>PlayHub 在线小游戏中心</h1>
-    <p class="description">塔防战争 · 贪吃蛇大作战 · 2048 · 飞机大战 — 精选 HTML5 小游戏，打开即玩</p>
+    <p class="description">塔防战争 · 贪吃蛇大作战 · 2048 · 飞机大战 · 铁幕战争棋 — 精选 HTML5 小游戏，打开即玩</p>
     <button class="action-button">🎮 开始游戏</button>
   </header>
 
@@ -53,7 +55,7 @@
   <section class="features">
     <div class="feature">
       <h2>精选游戏</h2>
-      <p>4 款精心挑选的经典小游戏，涵盖策略、休闲、益智、射击等多种类型。</p>
+      <p>5 款精心挑选的经典小游戏，涵盖策略、休闲、益智、射击、棋类等多种类型。</p>
     </div>
     <div class="feature">
       <h2>打开即玩</h2>
@@ -131,6 +133,22 @@
     </table>
     <button class="btn-enter" data-game="shmup">进入游戏 →</button>
 
+    <hr>
+
+    <!-- 铁幕 -->
+    <h3>🛡️ 铁幕 · 现代战争棋</h3>
+    <p>基于现代战争的双人回合制策略棋。坦克、直升机、火炮、防空导弹、步兵… 在 9×9 棋盘上展开信息战与体系对抗，保留象棋的策略深度，融入现代战争元素。</p>
+    <table>
+      <thead><tr><th>属性</th><th>详情</th></tr></thead>
+      <tbody>
+        <tr><td>类型</td><td>策略棋类</td></tr>
+        <tr><td>兵种</td><td>8 种（坦克 / 直升机 / 火炮 / 防空 / 近卫 / 步兵 / 侦察 / 指挥）</td></tr>
+        <tr><td>棋盘</td><td>9 × 9</td></tr>
+        <tr><td>特色</td><td>兵种克制 · 远程打击链 · 通信节点 · 将军绝杀 · 悔棋</td></tr>
+      </tbody>
+    </table>
+    <button class="btn-enter" data-game="iron-curtain">进入游戏 →</button>
+
   </section>
 
   <!-- Footer -->
@@ -185,6 +203,18 @@
     <iframe class="game-frame" src="games/shmup.html"
             width="620" height="660" allow="autoplay" loading="lazy"
             title="飞机大战"></iframe>
+  </div>
+</div>
+
+<div class="game-page" id="page-iron-curtain">
+  <div class="game-page-header">
+    <button class="back-btn">← 返回首页</button>
+    <h2>🛡️ 铁幕 · 现代战争棋</h2>
+  </div>
+  <div class="game-full">
+    <iframe class="game-frame" id="iframe-iron-curtain" src="games/iron-curtain.html"
+            width="1060" height="680" allow="autoplay" loading="lazy"
+            title="铁幕 · 现代战争棋"></iframe>
   </div>
 </div>
 

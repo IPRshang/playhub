@@ -18,7 +18,7 @@
   const gameLoaded = {};
 
   // ========== 导航映射 ==========
-  const navMap = { home: 0, td: 1, snake: 2, '2048': 3, shmup: 4 };
+  const navMap = { home: 0, td: 1, snake: 2, '2048': 3, shmup: 4, 'iron-curtain': 5 };
   const desktopLinks = document.querySelectorAll('.nav-links .nav-link');
   const mobileLinks = document.querySelectorAll('.mobile-sidebar .nav-link');
 
@@ -91,6 +91,7 @@
   desktopLinks[2].addEventListener('click', function () { openGame('snake'); });
   desktopLinks[3].addEventListener('click', function () { openGame('2048'); });
   desktopLinks[4].addEventListener('click', function () { openGame('shmup'); });
+  desktopLinks[5].addEventListener('click', function () { openGame('iron-curtain'); });
 
   // 移动端侧边栏链接点击
   mobileLinks[0].addEventListener('click', function () { showLobby(); closeSidebar(); });
@@ -98,6 +99,7 @@
   mobileLinks[2].addEventListener('click', function () { openGame('snake'); closeSidebar(); });
   mobileLinks[3].addEventListener('click', function () { openGame('2048'); closeSidebar(); });
   mobileLinks[4].addEventListener('click', function () { openGame('shmup'); closeSidebar(); });
+  mobileLinks[5].addEventListener('click', function () { openGame('iron-curtain'); closeSidebar(); });
 
   // Logo 点击回首页
   document.querySelector('.site-name').addEventListener('click', showLobby);

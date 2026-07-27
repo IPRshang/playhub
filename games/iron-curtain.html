@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>铁幕 · 现代战争棋</title>
+<style>
+:root {
+    --bg: #1a1a2e; --panel: #16213e; --accent: #e94560; --gold: #f0a500;
+    --blue-team: #4cc9f0; --red-team: #f72585;
+    --cell-light: #2d2d44; --cell-dark: #252540;
+    --text: #e0e0e0; --text-dim: #888;
+    --highlight-move: rgba(76,201,240,0.4); --highlight-attack: rgba(247,37,133,0.5);
+    --highlight-selected: rgba(240,165,0,0.6); --highlight-special: rgba(114,9,183,0.5);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+    display: flex; justify-content: center; align-items: flex-start;
+    min-height: 100vh; overflow-x: hidden; padding: 10px 0;
+}
+.game-container {
+    display: flex; gap: 16px; padding: 10px;
+    max-width: 1060px; width: 100%; flex-wrap: wrap; justify-content: center;
+}
+.board-wrapper {
+    background: var(--panel); border-radius: 10px; padding: 12px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08);
+}
+.board-title {
+    text-align: center; font-size: 1.2em; font-weight: bold; margin-bottom: 8px; letter-spacing: 2px;
+    background: linear-gradient(135deg,var(--gold),var(--accent));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+canvas#board { display:block; border-radius:4px; cursor:pointer; }
+.sidebar {
+    background: var(--panel); border-radius: 10px; padding: 16px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08);
+    min-width: 240px; max-width: 280px; display: flex; flex-direction: column; gap: 12px;
+}
+.turn-indicator { text-align:center; padding:10px; border-radius:6px; font-weight:bold; font-size:1em; transition:all 0.3s; }
+.turn-blue { background:rgba(76,201,240,0.15); color:var(--blue-team); border:1px solid rgba(76,201,240,0.3); }
+.turn-red { background:rgba(247,37,133,0.15); color:var(--red-team); border:1px solid rgba(247,37,133,0.3); }
+.info-section { background:rgba(0,0,0,0.2); border-radius:6px; padding:10px; }
+.info-section h3 { font-size:0.8em; color:var(--text-dim); margin-bottom:6px; text-transform:uppercase; letter-spacing:1px; }
+.info-section .content { font-size:0.85em; line-height:1.5; }
+.piece-legend { display:grid; grid-template-columns:1fr 1fr; gap:4px; font-size:0.72em; }
+.legend-item { display:flex; align-items:center; gap:4px; padding:3px 4px; border-radius:4px; background:rgba(255,255,255,0.03); }
+.legend-icon { font-size:1.1em; width:22px; text-align:center; }
+.btn { padding:8px 14px; border:none; border-radius:6px; cursor:pointer; font-size:0.85em; font-weight:bold; transition:all 0.2s; letter-spacing:0.5px; }
+.btn:hover { transform:translateY(-1px); }
+.btn:active { transform:translateY(0); }
+.btn-primary { background:var(--accent); color:white; }
+.btn-secondary { background:rgba(255,255,255,0.1); color:var(--text); }
+.btn-warn { background:rgba(240,165,0,0.8); color:#1a1a2e; }
+.game-log { background:rgba(0,0,0,0.3); border-radius:6px; padding:8px; max-height:150px; overflow-y:auto; font-size:0.72em; line-height:1.5; }
+.log-entry { padding:2px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+.log-blue { color:var(--blue-team); } .log-red { color:var(--red-team); }
+.log-kill { color:#ff6b6b; } .log-info { color:var(--gold); }
+.modal-overlay { display:none; position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.7); z-index:100; justify-content:center; align-items:center; }
+.modal-overlay.active { display:flex; }
+.modal { background:var(--panel); border-radius:14px; padding:28px; text-align:center; max-width:380px; border:1px solid rgba(255,255,255,0.1); }
+.modal h2 { font-size:1.4em; margin-bottom:10px; }
+.modal .winner-icon { font-size:2.6em; margin-bottom:6px; }
+.modal .btns { display:flex; gap:8px; justify-content:center; margin-top:16px; }
+@media (max-width:800px) {
+    .game-container { flex-direction:column; align-items:center; }
+    .sidebar { max-width:100%; width:100%; }
+}
+</style>
+</head>
+<body>
+<div class="game-container">
+    <div class="board-wrapper">
+        <div class="board-title">🛡️ 铁幕 · 现代战争棋</div>
+        <canvas id="board"></canvas>
+    </div>
+    <div class="sidebar">
+        <div class="turn-indicator turn-blue" id="turnIndicator">🔵 蓝方行动中</div>
+        <div class="info-section">
+            <h3>📋 选中单位</h3>
+            <div class="content" id="selectedInfo">点击棋盘选择一个单位</div>
+        </div>
+        <div class="info-section">
+            <h3>⚔️ 兵种图鉴</h3>
+            <div class="piece-legend" id="legend"></div>
+        </div>
+        <div class="btn btn-warn" onclick="game.undo()" style="width:100%">↩ 悔棋</div>
+        <div class="btn btn-secondary" onclick="game.reset()" style="width:100%">🔄 重新开始</div>
+        <div class="game-log" id="gameLog">
+            <div class="log-entry log-info">对局开始 — 蓝方先手</div>
+        </div>
+    </div>
+</div>
+<div class="modal-overlay" id="winModal">
+    <div class="modal">
+        <div class="winner-icon" id="winnerIcon"></div>
+        <h2 id="winnerText"></h2>
+        <p style="color:var(--text-dim)" id="winnerDetail"></p>
+        <div class="btns">
+            <div class="btn btn-primary" onclick="game.reset()">🔄 再来一局</div>
+            <div class="btn btn-secondary" onclick="document.getElementById('winModal').classList.remove('active')">关闭</div>
+        </div>
+    </div>
+</div>
+<script>
+const BOARD_SIZE=9,CELL=56,PADDING=28,PIECE_R=22;
+const PIECES={
+    command:{name:'指挥中心',icon:'🏰',atk:0,def:3,range:0,move:1,desc:'核心，被消灭即战败'},
+    tank:{name:'主战坦克',icon:'🫏',atk:5,def:4,range:1,move:3,desc:'直线猛攻，装甲厚重'},
+    helicopter:{name:'武装直升机',icon:'🚁',atk:4,def:2,range:1,move:4,desc:'跃障斜击，空中突袭'},
+    artillery:{name:'自行火炮',icon:'💥',atk:6,def:1,range:3,move:2,desc:'远程打击，需步兵引导'},
+    sam:{name:'防空导弹',icon:'🎯',atk:3,def:2,range:2,move:2,desc:'斜线拦截，克直升机'},
+    guard:{name:'近卫部队',icon:'🛡️',atk:2,def:4,range:1,move:2,desc:'护卫指挥，防御强化'},
+    infantry:{name:'步兵小队',icon:'🎖️',atk:2,def:2,range:1,move:2,desc:'渗透隐真，占通信节点'},
+    scout:{name:'侦察兵',icon:'🔭',atk:1,def:1,range:1,move:5,desc:'高速侦察，引导炮火'},
+};
+class Game{
+    constructor(){
+        this.canvas=document.getElementById('board');
+        this.ctx=this.canvas.getContext('2d');
+        this.canvas.width=BOARD_SIZE*CELL+PADDING*2;
+        this.canvas.height=BOARD_SIZE*CELL+PADDING*2;
+        this.canvas.addEventListener('click',e=>this.handleClick(e));
+        this.canvas.addEventListener('mousemove',e=>this.handleHover(e));
+        this.reset(); this.draw();
+    }
+    reset(){
+        this.board=Array.from({length:BOARD_SIZE},()=>Array(BOARD_SIZE).fill(null));
+        this.turn='blue'; this.selected=null; this.moves=[]; this.history=[]; this.logs=[];
+        this.commNodes=this.initCommNodes(); this.gameOver=false; this.winner=null; this.hoverCell=null;
+        this.initPieces(); this.updateUI(); this.draw();
+        this.addLog('info','对局开始 — 蓝方先手');
+        document.getElementById('winModal').classList.remove('active');
+    }
+    initCommNodes(){
+        return [{r:2,c:4},{r:4,c:2},{r:4,c:6},{r:6,c:4},{r:1,c:1},{r:1,c:7},{r:7,c:1},{r:7,c:7}];
+    }
+    initPieces(){
+        const br=['scout','helicopter','tank','artillery','command','artillery','tank','helicopter','scout'];
+        const bB=0,rB=BOARD_SIZE-1,bG=1,rG=BOARD_SIZE-2,bI=2,rI=BOARD_SIZE-3;
+        for(let c=0;c<BOARD_SIZE;c++){
+            this.placePiece(bB,c,br[c],'blue'); this.placePiece(rB,c,br[c],'red');
+            if(br[c]==='command'){
+                if(c>0){this.placePiece(bG,c-1,'guard','blue');this.placePiece(rG,c-1,'guard','red');}
+                if(c<BOARD_SIZE-1){this.placePiece(bG,c+1,'guard','blue');this.placePiece(rG,c+1,'guard','red');}
+                this.placePiece(bG,c,'guard','blue'); this.placePiece(rG,c,'guard','red');
+            }
+            if(c%2===0){this.placePiece(bI,c,'infantry','blue');this.placePiece(rI,c,'infantry','red');}
+            if(c===2||c===6){this.placePiece(bI+1,c,'sam','blue');this.placePiece(rI-1,c,'sam','red');}
+        }
+    }
+    placePiece(r,c,type,team){this.board[r][c]={type,team,hidden:false,moved:false};}
+    getCommControl(team){let count=0;for(let n of this.commNodes){const p=this.board[n.r]?.[n.c];if(p&&p.team===team&&p.type==='infantry')count++;}return count;}
+    hasAdjacentFriend(r,c,team){for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){if(dr===0&&dc===0)continue;const p=this.board[r+dr]?.[c+dc];if(p&&p.team===team)return true;}return false;}
+    findCommand(team){for(let r=0;r<BOARD_SIZE;r++)for(let c=0;c<BOARD_SIZE;c++){const p=this.board[r][c];if(p&&p.type==='command'&&p.team===team)return{r,c};}return null;}
+    wouldBeInCheck(fr,fc,tr,tc,team){const saved=this.board[tr][tc],moving=this.board[fr][fc];this.board[tr][tc]=moving;this.board[fr][fc]=null;const ic=this.isInCheck(team);this.board[fr][fc]=moving;this.board[tr][tc]=saved;return ic;}
+    isInCheck(team){const cmd=this.findCommand(team);if(!cmd)return true;const enemy=team==='blue'?'red':'blue';for(let r=0;r<BOARD_SIZE;r++)for(let c=0;c<BOARD_SIZE;c++){const p=this.board[r][c];if(p&&p.team===enemy){const moves=this.getRawMoves(r,c);if(moves.some(m=>m.r===cmd.r&&m.c===cmd.c))return true;}}return false;}
+    getRawMoves(r,c){
+        const piece=this.board[r][c];if(!piece)return[];const moves=[];
+        const am=(tr,tc)=>{if(tr<0||tr>=BOARD_SIZE||tc<0||tc>=BOARD_SIZE)return;const t=this.board[tr][tc];if(t&&t.team===piece.team)return;moves.push({r:tr,c:tc});};
+        const{type,team}=piece;
+        switch(type){
+            case'command':for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++)if(dr!==0||dc!==0)am(r+dr,c+dc);break;
+            case'tank':for(let[dr,dc]of[[0,1],[0,-1],[1,0],[-1,0]]){for(let i=1;i<=piece.move+1;i++){const tr=r+dr*i,tc=c+dc*i;if(tr<0||tr>=BOARD_SIZE||tc<0||tc>=BOARD_SIZE)break;const t=this.board[tr][tc];if(t&&t.team===team)break;am(tr,tc);if(t)break;}}break;
+            case'helicopter':for(let[dr,dc]of[[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]])am(r+dr,c+dc);break;
+            case'artillery':{const hs=this.hasAdjacentFriend(r,c,team);const rg=hs?piece.range:1;for(let[dr,dc]of[[0,1],[0,-1],[1,0],[-1,0]]){for(let i=1;i<=rg;i++){const tr=r+dr*i,tc=c+dc*i;if(tr<0||tr>=BOARD_SIZE||tc<0||tc>=BOARD_SIZE)break;const t=this.board[tr][tc];if(t&&t.team===team)break;am(tr,tc);if(t)break;}}}break;
+            case'sam':for(let[dr,dc]of[[-1,-1],[-1,1],[1,-1],[1,1]]){for(let i=1;i<=piece.move+1;i++){const tr=r+dr*i,tc=c+dc*i;if(tr<0||tr>=BOARD_SIZE||tc<0||tc>=BOARD_SIZE)break;const t=this.board[tr][tc];if(t&&t.team===team)break;am(tr,tc);if(t)break;}}break;
+            case'guard':for(let dr=-2;dr<=2;dr++)for(let dc=-2;dc<=2;dc++){if(dr===0&&dc===0)continue;if(Math.abs(dr)+Math.abs(dc)<=2)am(r+dr,c+dc);}break;
+            case'infantry':{const fwd=team==='blue'?1:-1;am(r+fwd,c);am(r+fwd,c-1);am(r+fwd,c+1);am(r,c-1);am(r,c+1);if(!piece.moved)am(r+fwd*2,c);}break;
+            case'scout':for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){if(dr===0&&dc===0)continue;for(let m=1;m<=piece.move;m++){const tr=r+dr*m,tc=c+dc*m;if(tr<0||tr>=BOARD_SIZE||tc<0||tc>=BOARD_SIZE)break;const t=this.board[tr][tc];if(t&&t.team===team)break;am(tr,tc);if(t)break;}}break;
+        }
+        return moves;
+    }
+    getPieceMoves(r,c){
+        const piece=this.board[r][c];if(!piece)return[];const moves=[];
+        const{type,team}=piece;
+        const addMove=(tr,tc,special=null)=>{
+            if(tr<0||tr>=BOARD_SIZE||tc<0||tc>=BOARD_SIZE)return;
+            const target=this.board[tr][tc];if(target&&target.team===team)return;
+            if(this.wouldBeInCheck(r,c,tr,tc,team))return;
+            moves.push({r:tr,c:tc,attack:!!target,special});
+        };
+        switch(type){
+            case'command':for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++)if(dr!==0||dc!==0)addMove(r+dr,c+dc);break;
+            case'tank':for(let[dr,dc]of[[0,1],[0,-1],[1,0],[-1,0]]){let blocked=false;for(let i=1;i<=piece.move+1;i++){const tr=r+dr*i,tc=c+dc*i;if(tr<0||tr>=BOARD_SIZE||tc<0||tc>=BOARD_SIZE)break;const t=this.board[tr][tc];if(t&&t.team===team)break;if(blocked)break;addMove(tr,tc);if(t&&t.team!==team)blocked=true;}}break;
+            case'helicopter':for(let[dr,dc]of[[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]])addMove(r+dr,c+dc);break;
+            case'artillery':{const hs=this.hasAdjacentFriend(r,c,team);const range=hs?piece.range:1;for(let[dr,dc]of[[0,1],[0,-1],[1,0],[-1,0]]){for(let i=1;i<=range;i++){const tr=r+dr*i,tc=c+dc*i;if(tr<0||tr>=BOARD_SIZE||tc<0||tc>=BOARD_SIZE)break;const t=this.board[tr][tc];if(t&&t.team===team)break;addMove(tr,tc,hs&&i>1?'间接火力':null);if(t&&t.team!==team)break;}}}break;
+            case'sam':for(let[dr,dc]of[[-1,-1],[-1,1],[1,-1],[1,1]]){for(let i=1;i<=piece.move+1;i++){const tr=r+dr*i,tc=c+dc*i;if(tr<0||tr>=BOARD_SIZE||tc<0||tc>=BOARD_SIZE)break;const t=this.board[tr][tc];if(t&&t.team===team)break;addMove(tr,tc);if(t&&t.team!==team)break;}}break;
+            case'guard':for(let dr=-2;dr<=2;dr++)for(let dc=-2;dc<=2;dc++){if(dr===0&&dc===0)continue;if(Math.abs(dr)+Math.abs(dc)<=2)addMove(r+dr,c+dc);}break;
+            case'infantry':{const fwd=team==='blue'?1:-1;addMove(r+fwd,c);addMove(r+fwd,c-1);addMove(r+fwd,c+1);addMove(r,c-1);addMove(r,c+1);if(!piece.moved)addMove(r+fwd*2,c);}break;
+            case'scout':for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){if(dr===0&&dc===0)continue;for(let m=1;m<=piece.move;m++){const tr=r+dr*m,tc=c+dc*m;if(tr<0||tr>=BOARD_SIZE||tc<0||tc>=BOARD_SIZE)break;const t=this.board[tr][tc];if(t&&t.team===team)break;addMove(tr,tc);if(t&&t.team!==team)break;}}break;
+        }
+        return moves;
+    }
+    hasLegalMoves(team){for(let r=0;r<BOARD_SIZE;r++)for(let c=0;c<BOARD_SIZE;c++){const p=this.board[r][c];if(p&&p.team===team){if(this.getPieceMoves(r,c).length>0)return true;}}return false;}
+    makeMove(fr,fc,tr,tc){
+        const piece=this.board[fr][fc],target=this.board[tr][tc];
+        this.history.push({fr,fc,tr,tc,piece:{...piece},target:target?{...target}:null});
+        const attackType=target?'attack':'move';
+        this.board[tr][tc]={...piece,moved:true};this.board[fr][fc]=null;
+        const pInfo=PIECES[piece.type],fromName=`${colLabel(fc)}${rowLabel(fr)}`,toName=`${colLabel(tc)}${rowLabel(tr)}`;
+        const teamName=piece.team==='blue'?'蓝方':'红方',teamClass=piece.team==='blue'?'log-blue':'log-red';
+        if(attackType==='attack'){
+            const tInfo=PIECES[target.type];
+            this.addLog(teamClass,`${teamName} ${pInfo.icon}${pInfo.name} 在 ${toName} 消灭了 ${tInfo.icon}${tInfo.name}`);
+            if(target.type==='command'){this.gameOver=true;this.winner=piece.team;this.addLog('log-kill',`⚡ ${teamName} 摧毁了敌方指挥中心！`);}
+        }else{this.addLog(teamClass,`${teamName} ${pInfo.icon}${pInfo.name} ${fromName} → ${toName}`);}
+        this.turn=this.turn==='blue'?'red':'blue';this.selected=null;this.moves=[];
+        const enemyTeam=this.turn;
+        if(!this.gameOver){
+            if(this.isInCheck(enemyTeam)){
+                if(!this.hasLegalMoves(enemyTeam)){this.gameOver=true;this.winner=this.turn==='blue'?'red':'blue';this.addLog('log-kill',`🏁 绝杀！${this.winner==='blue'?'蓝方':'红方'}获胜！`);}
+                else{this.addLog('log-info',`⚠️ ${enemyTeam==='blue'?'蓝方':'红方'}指挥中心受到威胁！（将军）`);}
+            }else if(!this.hasLegalMoves(enemyTeam)){this.gameOver=true;this.winner='draw';this.addLog('log-info','🤝 困毙！平局！');}
+        }
+        this.updateUI();this.draw();
+        if(this.gameOver)setTimeout(()=>this.showWin(),400);
+    }
+    addLog(cls,msg){this.logs.push({cls,msg});const el=document.getElementById('gameLog');el.innerHTML=this.logs.slice(-20).map(l=>`<div class="log-entry ${l.cls}">${l.msg}</div>`).join('');el.scrollTop=el.scrollHeight;}
+    undo(){if(this.gameOver||this.history.length===0)return;const last=this.history.pop();this.board[last.fr][last.fc]=last.piece;this.board[last.tr][last.tc]=last.target;this.turn=last.piece.team;this.selected=null;this.moves=[];this.addLog('log-info',`↩ ${last.piece.team==='blue'?'蓝方':'红方'}悔棋`);this.updateUI();this.draw();}
+    showWin(){const modal=document.getElementById('winModal');modal.classList.add('active');const icon=document.getElementById('winnerIcon'),text=document.getElementById('winnerText'),detail=document.getElementById('winnerDetail');if(this.winner==='draw'){icon.textContent='🤝';text.textContent='平局！';detail.textContent='双方势均力敌，握手言和';}else{icon.textContent=this.winner==='blue'?'🔵':'🔴';text.textContent=`${this.winner==='blue'?'蓝方':'红方'}获胜！`;detail.textContent='指挥中心已被摧毁，战争结束';}}
+    handleClick(e){
+        if(this.gameOver)return;
+        const rect=this.canvas.getBoundingClientRect(),x=e.clientX-rect.left,y=e.clientY-rect.top;
+        const c=Math.floor((x-PADDING)/CELL),r=Math.floor((y-PADDING)/CELL);
+        if(r<0||r>=BOARD_SIZE||c<0||c>=BOARD_SIZE)return;
+        const mt=this.moves.find(m=>m.r===r&&m.c===c);
+        if(mt&&this.selected){this.makeMove(this.selected.r,this.selected.c,r,c);return;}
+        const piece=this.board[r][c];
+        if(piece&&piece.team===this.turn){this.selected={r,c};this.moves=this.getPieceMoves(r,c);}
+        else{this.selected=null;this.moves=[];}
+        this.updateUI();this.draw();
+    }
+    handleHover(e){
+        const rect=this.canvas.getBoundingClientRect(),x=e.clientX-rect.left,y=e.clientY-rect.top;
+        const c=Math.floor((x-PADDING)/CELL),r=Math.floor((y-PADDING)/CELL);
+        if(r<0||r>=BOARD_SIZE||c<0||c>=BOARD_SIZE){if(this.hoverCell!==null){this.hoverCell=null;this.draw();}return;}
+        if(!this.hoverCell||this.hoverCell.r!==r||this.hoverCell.c!==c){this.hoverCell={r,c};this.draw();}
+    }
+    updateUI(){
+        const ind=document.getElementById('turnIndicator');
+        if(this.gameOver){ind.textContent=this.winner==='draw'?'🤝 平局':`${this.winner==='blue'?'🔵 蓝方获胜':'🔴 红方获胜'}`;ind.className='turn-indicator';}
+        else{ind.textContent=this.turn==='blue'?'🔵 蓝方行动中':'🔴 红方行动中';ind.className=`turn-indicator turn-${this.turn}`;}
+        const info=document.getElementById('selectedInfo');
+        if(this.selected){const p=this.board[this.selected.r][this.selected.c],pi=PIECES[p.type],sp=this.hasAdjacentFriend(this.selected.r,this.selected.c,p.team);info.innerHTML=`<b>${pi.icon} ${pi.name}</b> (${p.team==='blue'?'蓝方':'红方'})<br>攻击:${pi.atk} 防御:${pi.def} 射程:${pi.range} 机动:${pi.move}<br><small style="color:var(--text-dim)">${pi.desc}</small>${p.type==='artillery'&&sp?'<br><small style="color:var(--gold)">🔭 观察哨就绪 — 射程+2</small>':''}<br>${this.moves.length} 个可行走法`;}
+        else{info.innerHTML='点击棋盘选择一个单位';}
+    }
+    draw(){
+        const ctx=this.ctx,w=this.canvas.width,h=this.canvas.height;
+        ctx.fillStyle='#1a1a2e';ctx.fillRect(0,0,w,h);
+        for(let r=0;r<BOARD_SIZE;r++)for(let c=0;c<BOARD_SIZE;c++){const x=PADDING+c*CELL,y=PADDING+r*CELL;ctx.fillStyle=(r+c)%2===0?'#2d2d44':'#252540';ctx.fillRect(x,y,CELL,CELL);ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.strokeRect(x,y,CELL,CELL);}
+        for(let node of this.commNodes){const x=PADDING+node.c*CELL+CELL/2,y=PADDING+node.r*CELL+CELL/2;ctx.beginPath();ctx.arc(x,y,7,0,Math.PI*2);ctx.fillStyle='rgba(240,165,0,0.3)';ctx.fill();ctx.strokeStyle='rgba(240,165,0,0.5)';ctx.stroke();const p=this.board[node.r]?.[node.c];if(p&&p.type==='infantry'){ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fillStyle=p.team==='blue'?'rgba(76,201,240,0.8)':'rgba(247,37,133,0.8)';ctx.fill();}}
+        ctx.fillStyle='#666';ctx.font='9px sans-serif';ctx.textAlign='center';for(let c=0;c<BOARD_SIZE;c++){ctx.fillText(colLabel(c),PADDING+c*CELL+CELL/2,PADDING-8);ctx.fillText(colLabel(c),PADDING+c*CELL+CELL/2,PADDING+BOARD_SIZE*CELL+14);}
+        ctx.textAlign='right';for(let r=0;r<BOARD_SIZE;r++)ctx.fillText(rowLabel(r),PADDING-5,PADDING+r*CELL+CELL/2+4);
+        ctx.textAlign='left';for(let r=0;r<BOARD_SIZE;r++)ctx.fillText(rowLabel(r),PADDING+BOARD_SIZE*CELL+5,PADDING+r*CELL+CELL/2+4);
+        if(this.selected){const sx=PADDING+this.selected.c*CELL,sy=PADDING+this.selected.r*CELL;ctx.fillStyle='rgba(240,165,0,0.35)';ctx.fillRect(sx,sy,CELL,CELL);ctx.strokeStyle='rgba(240,165,0,0.8)';ctx.lineWidth=2;ctx.strokeRect(sx+1,sy+1,CELL-2,CELL-2);ctx.lineWidth=1;}
+        if(this.hoverCell){const hx=PADDING+this.hoverCell.c*CELL,hy=PADDING+this.hoverCell.r*CELL;ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.strokeRect(hx+1,hy+1,CELL-2,CELL-2);}
+        for(let m of this.moves){const mx=PADDING+m.c*CELL+CELL/2,my=PADDING+m.r*CELL+CELL/2;if(m.attack){ctx.save();ctx.translate(mx,my);ctx.rotate(Math.PI/4);ctx.fillStyle='rgba(247,37,133,0.4)';ctx.fillRect(-10,-10,20,20);ctx.strokeStyle='rgba(247,37,133,0.7)';ctx.strokeRect(-10,-10,20,20);ctx.restore();}else{ctx.beginPath();ctx.arc(mx,my,7,0,Math.PI*2);ctx.fillStyle=m.special?'rgba(114,9,183,0.5)':'rgba(76,201,240,0.4)';ctx.fill();ctx.strokeStyle=m.special?'rgba(114,9,183,0.7)':'rgba(76,201,240,0.6)';ctx.stroke();}}
+        for(let r=0;r<BOARD_SIZE;r++)for(let c=0;c<BOARD_SIZE;c++){const piece=this.board[r][c];if(!piece)continue;this.drawPiece(ctx,PADDING+c*CELL+CELL/2,PADDING+r*CELL+CELL/2,piece);}
+        if(!this.gameOver){const ict=this.turn;if(this.isInCheck(ict)){const cmd=this.findCommand(ict);if(cmd){const cx=PADDING+cmd.c*CELL+CELL/2,cy=PADDING+cmd.r*CELL+CELL/2;ctx.beginPath();ctx.arc(cx,cy,PIECE_R+5,0,Math.PI*2);ctx.strokeStyle='#ff4444';ctx.lineWidth=2.5;ctx.setLineDash([3,3]);ctx.stroke();ctx.setLineDash([]);ctx.lineWidth=1;}}}
+    }
+    drawPiece(ctx,cx,cy,piece){
+        const isBlue=piece.team==='blue',mc=isBlue?'#4cc9f0':'#f72585',dc=isBlue?'#1a6b8a':'#8a0d3e',gc=isBlue?'rgba(76,201,240,0.3)':'rgba(247,37,133,0.3)';
+        const grad=ctx.createRadialGradient(cx,cy,PIECE_R-3,cx,cy,PIECE_R+3);grad.addColorStop(0,gc);grad.addColorStop(1,'transparent');
+        ctx.beginPath();ctx.arc(cx,cy,PIECE_R+3,0,Math.PI*2);ctx.fillStyle=grad;ctx.fill();
+        ctx.beginPath();ctx.arc(cx,cy,PIECE_R,0,Math.PI*2);const bg=ctx.createLinearGradient(cx-PIECE_R,cy-PIECE_R,cx+PIECE_R,cy+PIECE_R);bg.addColorStop(0,mc);bg.addColorStop(1,dc);ctx.fillStyle=bg;ctx.fill();ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=1.5;ctx.stroke();
+        ctx.beginPath();ctx.arc(cx,cy,PIECE_R-4,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,0.1)';ctx.fill();
+        ctx.fillStyle='#fff';ctx.font=`${PIECE_R-2}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(PIECES[piece.type].icon,cx,cy);
+        const abbr={command:'CMD',tank:'TNK',helicopter:'HEL',artillery:'ART',sam:'SAM',guard:'GRD',infantry:'INF',scout:'SCT'};
+        ctx.fillStyle='rgba(255,255,255,0.6)';ctx.font='bold 7px sans-serif';ctx.fillText(abbr[piece.type],cx,cy+PIECE_R-7);
+    }
+}
+function colLabel(c){return String.fromCharCode(65+c);}
+function rowLabel(r){return(BOARD_SIZE-r).toString();}
+const game=new Game();
+document.getElementById('legend').innerHTML=Object.entries(PIECES).map(([k,p])=>`<div class="legend-item"><span class="legend-icon">${p.icon}</span><span><b>${p.name}</b><br><small style="color:var(--text-dim)">A${p.atk} D${p.def} R${p.range} M${p.move}</small></span></div>`).join('');
+</script>
+</body>
+</html>
